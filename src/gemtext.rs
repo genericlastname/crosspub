@@ -20,53 +20,6 @@ pub struct GemtextToken {
                         // named, when it will hold the user friendly name.
 }
 
-impl GemtextToken {
-    pub fn styled_string(&self) -> StyledString {
-        let styled_string: StyledString;
-        let data_copy = self.data.clone();
-
-        match self.kind {
-            TokenKind::Link => {
-                // Don't need the cloned data since format! Copies anyway.
-                let disp: String;
-                if self.extra.is_empty() {
-                    disp = format!("→ {}", self.data);
-                } else {
-                    disp = format!("→ {}", self.extra);
-                }
-                styled_string = StyledString::styled(disp,
-                    Style::from(Effect::Underline));
-            },
-            TokenKind::Heading => {
-                // TODO: figure out how to combine effects.
-                // let effect = Effect::Underline & Effect::Bold;
-                styled_string = StyledString::styled(data_copy.to_uppercase(),
-                    Style::from(Effect::Bold));
-            },
-            TokenKind::SubHeading => {
-                let mut style = Style::default();
-                style.effects = Effect::Underline & Effect::Bold;
-                styled_string = StyledString::styled(data_copy,
-                    style);
-            },
-            TokenKind::SubSubHeading => {
-                styled_string = StyledString::styled(data_copy,
-                    Style::from(Effect::Bold));
-            },
-            TokenKind::PreFormattedText => {
-                styled_string = StyledString::styled(data_copy,
-                    Style::default());
-            },
-            _ => {
-                styled_string = StyledString::styled(data_copy,
-                    Style::default());
-            }
-        }
-
-        styled_string
-    }
-}
-
 // Returns a Vec<&str> from a given str with newline and linefeed bytes
 // maintained.
 fn split_keep_crlf(raw_text: &str) -> Vec<String> {

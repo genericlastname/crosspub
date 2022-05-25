@@ -1,6 +1,9 @@
 # The name of your site which gets used in tab titles and the header.
 site_name = "example"
 
+# The full url of yor site.
+site_url = "http://example.com/"
+
 # Set this to true if you want crosspub to generate index.html for you. The
 # generated index.html includes the site title, an about message, and a list of
 # posts.
@@ -17,7 +20,8 @@ footer = "/path/to/footer.html"
 # will be used.
 default_style = false;
 # Change this to a path to your custom CSS. Only used if default_style = false.
-css = "/path/to/style.css"
+# This path is RELATIVE to your html_root.
+css = "path/to/style.css"
 
 # Root directories of html and gemini sites. Change these to the actual paths.
 html_root = "/home/user/public_html"
