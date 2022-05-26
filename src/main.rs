@@ -8,7 +8,8 @@ fn main() {
     let mut post_list = Vec::new();
     let config = settings::Config {
         site_name: String::from("hiroantag's web living room"),
-        site_url: String::from("retrace.club/~hiroantag"),
+        site_url: String::from("retrace.club/"),
+        username: String::from("hiroantag"),
         default_index: true,
         about: String::from(""),
         default_header: true,

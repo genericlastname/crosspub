@@ -7,6 +7,7 @@ use serde::Deserialize;
 pub struct Config {
     pub site_name: String,
     pub site_url: String,
+    pub username: String,
     pub default_index: bool,
     pub about: String,
     pub default_header: bool,

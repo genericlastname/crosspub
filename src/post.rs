@@ -44,17 +44,19 @@ fn create_html_post(tokens: &Vec<GemtextToken>, fm_config: &FMConfig, config: &C
                 <nav>
                 <h2>navigation</h2>
                 <ul>
-                <li><a href="{}">Home</a></li>
-                <li><a href="{}/about.html">About Me</a></li>
-                <li><a href="gemini://{}">Gemini version</a></li>
+                <li><a href="/~{}">Home</a></li>
+                <li><a href="/~{}/about.html">About Me</a></li>
+                <li><a href="/~{}/posts.html">Posts</a></li>
+                <li><a href="gemini://{}">Gemini feed</a></li>
                 </ul>
                 </nav>
                 </div>
                 <hr>"#,
                 &config.site_name,
+                &config.username,
+                &config.username,
+                &config.username,
                 &config.site_url,
-                &config.site_url,
-                &config.site_url
             )
         },
         false => {
