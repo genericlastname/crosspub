@@ -11,7 +11,7 @@ pub fn create_html_post_head_tag(fm: &FMConfig, config: &Config) -> String {
     </head>"#,
     config.site_url,
     config.css,
-    fm.name,
+    fm.title,
     config.site_name);
 
     header

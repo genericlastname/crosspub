@@ -49,7 +49,8 @@ fn create_html_post(tokens: &Vec<GemtextToken>, fm_config: &FMConfig, config: &C
                 <li><a href="gemini://{}">Gemini version</a></li>
                 </ul>
                 </nav>
-                </div>"#,
+                </div>
+                <hr>"#,
                 &config.site_name,
                 &config.site_url,
                 &config.site_url,
@@ -63,7 +64,16 @@ fn create_html_post(tokens: &Vec<GemtextToken>, fm_config: &FMConfig, config: &C
     html_target.write_all(header.as_bytes()).unwrap();
 
     // Write content div
+    html_target.write_all(format!(
+            r#"
+            <div id="content">
+            <h2>{}</h2>
+            <p>{}</p>
+            "#,
+            fm_config.title,
+            fm_config.date).as_bytes()).unwrap();
     html_target.write_all(generate_html_from_tokens(tokens).as_bytes()).unwrap();
+    html_target.write_all("</div>".as_bytes()).unwrap();
 }
 
 pub fn create_post(

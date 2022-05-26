@@ -22,7 +22,7 @@ pub struct Config {
 
 #[derive(Deserialize)]
 pub struct FMConfig {
-    pub name: String,
+    pub title: String,
     pub slug: String,
     pub date: String,
 }
