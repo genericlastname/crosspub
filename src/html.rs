@@ -3,8 +3,7 @@ use crate::gemtext::{GemtextToken, TokenKind};
 
 use crate::settings::{Config, FMConfig};
 
-pub fn create_html_post_header(fm: &FMConfig, config: &Config) -> String {
-    // TODO: add link rel stylesheet, noting that path will need to be truncated.
+pub fn create_html_post_head_tag(fm: &FMConfig, config: &Config) -> String {
     let header = format!(r#"<head>
     <base href="{}">
     <link rel="stylesheet" type="text/css" href="{}">
@@ -18,7 +17,7 @@ pub fn create_html_post_header(fm: &FMConfig, config: &Config) -> String {
     header
 }
 
-pub fn generate_html_from_tokens(tokens: Vec<GemtextToken>) -> String {
+pub fn generate_html_from_tokens(tokens: &Vec<GemtextToken>) -> String {
     let mut in_list = false;
     let mut buf = String::new();
 

@@ -13,15 +13,12 @@ default_index = false;
 about = "/path/to/about.gmi"
 # Set these to HTML files containing a header and footer respectively.
 # The header is NOT a <header> but rather the elements that should remain
-# consistent between pages.
+# consistent between pages (<div id="header">). Only used if default_header
+# and default_footer are false.
+default_header = true
 header = "/path/to/header.html"
+default_footer = true
 footer = "/path/to/footer.html"
-# Set this to true if you want to load custom CSS, otherwise the default style
-# will be used.
-default_style = false;
-# Change this to a path to your custom CSS. Only used if default_style = false.
-# This path is RELATIVE to your html_root.
-css = "path/to/style.css"
 
 # Root directories of html and gemini sites. Change these to the actual paths.
 html_root = "/home/user/public_html"
@@ -29,3 +26,10 @@ gemini_root = "/home/user/public_gemini"
 # The name of the directory containing posts in both html_root and gemini_root.
 # If it doesn't already exist it will be created.
 post_dir = "posts"
+
+# Set this to true if you want to load custom CSS, otherwise the default style
+# will be used.
+default_style = false;
+# Change this to a path to your custom CSS. Only used if default_style = false.
+# This path is RELATIVE to your html_root.
+css = "path/to/style.css"

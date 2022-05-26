@@ -9,6 +9,8 @@ pub struct Config {
     pub site_url: String,
     pub default_index: bool,
     pub about: String,
+    pub default_header: bool,
+    pub default_footer: bool,
     pub header: String,
     pub footer: String,
     pub default_style: bool,
