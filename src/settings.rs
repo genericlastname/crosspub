@@ -1,19 +1,14 @@
-use std::fs;
-use std::path::Path;
+use serde::{Serialize, Deserialize};
 
-use serde::Deserialize;
-
-#[derive(Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Config {
-    pub site_name: String,
-    pub site_url: String,
+    pub name: String,
+    pub url: String,
     pub username: String,
     pub default_index: bool,
     pub about: String,
-    pub default_header: bool,
-    pub default_footer: bool,
-    pub header: String,
-    pub footer: String,
+    pub html_template: String,
+    pub gemini_template: String,
     pub default_style: bool,
     pub css: String,
     pub html_root: String,
@@ -26,18 +21,4 @@ pub struct FMConfig {
     pub title: String,
     pub slug: String,
     pub date: String,
-}
-
-pub fn load_settings(path: &Path) -> Config {
-    let content = match fs::read_to_string(path) {
-        Ok(c) => c,
-        Err(_) => {
-            panic!("Couldn't read config file.");
-        }
-    };
-    let config = match toml::from_str(&content) {
-        Ok(c) => c,
-        Err(_) => { panic!("Couldn't load valid config."); }
-    };
-    config
 }

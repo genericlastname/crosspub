@@ -1,5 +1,3 @@
-use std::io::{BufRead, BufReader};
-
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum TokenKind {
     Text,
@@ -20,34 +18,54 @@ pub struct GemtextToken {
                         // named, when it will hold the user friendly name.
 }
 
-// Returns a Vec<&str> from a given str with newline and linefeed bytes
-// maintained.
-fn split_keep_crlf(raw_text: &str) -> Vec<String> {
-    let mut lines: Vec<String> = Vec::new();
-    let mut buflen: usize;
-    let mut current: String = String::new();
-    let mut reader = BufReader::new(raw_text.as_bytes());
-    loop {
-        buflen = reader.read_line(&mut current)
-            .expect("Couldn't read buffer.");
-        if buflen == 0 { break; }
-        let copy = current.clone();
-        current.clear();
-        lines.push(copy);
+impl GemtextToken {
+    pub fn as_html(&self) -> String {
+        match self.kind {
+            TokenKind::Heading => {
+                format!("<h1>{}</h1>\n", self.data)
+            },
+            TokenKind::SubHeading => {
+                format!("<h2>{}</h2>\n", self.data)
+            },
+            TokenKind::SubSubHeading => {
+                format!("<h3>{}</h3>\n", self.data)
+            },
+            TokenKind::Link => {
+                if self.extra.is_empty() {
+                    format!("<p><a href=\"{}\">{}</a></p>\n", self.data, self.data)
+                } else {
+                    format!("<p><a href=\"{}\">{}</a></p>\n", self.data, self.extra)
+                }
+            },
+            TokenKind::Blockquote => {
+                format!("<blockquote>{}</blockquote>\n", self.data)
+            },
+            TokenKind::PreFormattedText => {
+                format!("<pre>{}</pre>\n", self.data)
+            },
+            TokenKind::UnorderedList => {
+                format!("<li>{}</li>\n", self.data)
+            }
+            TokenKind::Text => {
+                if !self.data.is_empty() {
+                    format!("<p>{}</p>\n", self.data)
+                } else {
+                    String::new()
+                }
+            }
+        }
     }
-    lines
 }
 
 // Take in a string of gemtext and convert it into a vector of GemtextTokens
 // with a kind and data.
-pub fn parse_gemtext(raw_text: &str) -> Vec<GemtextToken> {
+pub fn parse_gemtext(lines: &[String]) -> Vec<GemtextToken> {
     let mut gemtext_token_chain = Vec::new();
-    let raw_text_lines: Vec<String> = split_keep_crlf(raw_text);
     let mut current_pft_state: bool = false;
     let mut pft_block = String::new();
     let mut _pft_alt_text: &str = "";
 
-    for line in raw_text_lines {
+    for line in lines {
         let mut mode: TokenKind;
         let text_tokens: Vec<&str> = line.splitn(3, ' ').collect();
 
@@ -140,94 +158,4 @@ pub fn parse_gemtext(raw_text: &str) -> Vec<GemtextToken> {
     }
 
     gemtext_token_chain
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn parser_handles_text() {
-        let text = "Hello world this is example text";
-        let parsed: Vec<GemtextToken> = parse_gemtext(text);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].kind, TokenKind::Text);
-        assert_eq!(parsed[0].data, text);
-    }
-
-    #[test]
-    fn parser_handles_links() {
-        let raw_text = "=> www.example.com";
-        let text_data = "www.example.com";
-        let parsed: Vec<GemtextToken> = parse_gemtext(raw_text);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].kind, TokenKind::Link);
-        assert_eq!(parsed[0].data, text_data);
-    }
-
-    #[test]
-    fn parser_handles_links_with_names() {
-        let raw_text = "=> www.example.com Example Link";
-        let text_data = "www.example.com";
-        let extra_data = "Example Link";
-        let parsed: Vec<GemtextToken> = parse_gemtext(raw_text);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].kind, TokenKind::Link);
-        assert_eq!(parsed[0].data, text_data);
-        assert_eq!(parsed[0].extra, extra_data);
-    }
-
-    #[test]
-    fn parser_handles_lists() {
-        let raw_text = "* Item";
-        let text_data = "Item";  // The text data after parsing.
-        let parsed: Vec<GemtextToken> = parse_gemtext(raw_text);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].kind, TokenKind::UnorderedList);
-        assert_eq!(parsed[0].data, text_data);
-    }
-
-    #[test]
-    fn parser_handles_blockquotes() {
-        let raw_text = "> block quote";
-        let text_data = "block quote";
-        let parsed: Vec<GemtextToken> = parse_gemtext(raw_text);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].kind, TokenKind::Blockquote);
-        assert_eq!(parsed[0].data, text_data);
-    }
-
-    #[test]
-    fn parser_handles_headings() {
-        let raw_text =
-            "\
-            # Heading\n\
-            ## SubHeading\n\
-            ### SubSubHeading";
-        let line0 = "Heading\n";
-        let line1 = "SubHeading\n";
-        let line2 = "SubSubHeading";
-        let parsed: Vec<GemtextToken> = parse_gemtext(raw_text);
-        assert_eq!(parsed.len(), 3);
-        assert_eq!(parsed[0].kind, TokenKind::Heading);
-        assert_eq!(parsed[1].kind, TokenKind::SubHeading);
-        assert_eq!(parsed[2].kind, TokenKind::SubSubHeading);
-        assert_eq!(parsed[0].data, line0);
-        assert_eq!(parsed[1].data, line1);
-        assert_eq!(parsed[2].data, line2);
-    }
-
-    #[test]
-    fn parser_handles_pft() {
-        let raw_text =
-            "```\n\
-            This text is unformatted.\n\
-            This is the second line.\n\
-            ```";
-        let line = "This text is unformatted.\nThis is the second line.\n";
-        let parsed: Vec<GemtextToken> = parse_gemtext(raw_text);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].kind, TokenKind::PreFormattedText);
-        assert_eq!(parsed[0].data, line);
-    }
 }

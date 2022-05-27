@@ -1,32 +1,29 @@
 # The name of your site which gets used in tab titles and the header.
-site_name = "example"
+name = "example"
 # The full url of yor site.
-site_url = "http://example.com/"
+url = "http://example.com/"
 # Your tilde extension (without the ~ character)
 username = "user"
 
-# Set this to true if you want crosspub to generate index.html for you. The
-# generated index.html includes the site title, an about message, and a list of
-# posts.
-default_index = false;
+# Set this to true if you want crosspub to generate index.html for you.
+#
+# If default_index = true: post list is generated on the user's
+# homepage.
+#
+# If default_index = false: the user provides their own homepage and the post
+# list is generated at /posts/posts.html
+default_index = true;
 # Change this to the path of a gemtext file that will be used to generate
-# index.html. Only used if default_index = true.
+# about.html. Only used if default_index = true.
 about = "/path/to/about.gmi"
-# Set these to HTML files containing a header and footer respectively.
-# The header is NOT a <header> but rather the elements that should remain
-# consistent between pages (<div id="header">). Only used if default_header
-# and default_footer are false.
-default_header = true
-header = "/path/to/header.html"
-default_footer = true
-footer = "/path/to/footer.html"
+# Change this to the path to your HTML post template file
+html_template = "/path/to/template.html"
+# Change this to the path to your gemini post template file
+gemini_template = "/path/to/template.gmi"
 
 # Root directories of html and gemini sites. Change these to the actual paths.
 html_root = "/home/user/public_html"
 gemini_root = "/home/user/public_gemini"
-# The name of the directory containing posts in both html_root and gemini_root.
-# If it doesn't already exist it will be created.
-post_dir = "posts"
 
 # Set this to true if you want to load custom CSS, otherwise the default style
 # will be used.

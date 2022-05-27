@@ -1,0 +1,26 @@
+<head>
+<title>{site_name}</title>
+</head>
+<body>
+<main>
+<div id="header">
+<p>{site_name}</p>
+<nav>
+<h2>Navigation</h2>
+<ul>
+<li><a href="/~{username}">Home</a></li>
+<li><a href="/~{username}/about.html">About</a></li>
+<li><a href="gemini://{site_url}/~{username}">Gemini Feed</a></li>
+</ul>
+</nav>
+</div>
+<hr>
+<div id="content">
+<h2>Posts</h2>
+{{ for post in posts }}
+<p>{post.date} <a href="/~{site.username}/posts/{post.filename}.html">
+{post.title}</a></p>
+{{ endfor }}
+</div>
+</main>
+</body>
