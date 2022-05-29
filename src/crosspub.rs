@@ -82,7 +82,7 @@ impl CrossPub {
         }
     }
 
-    pub fn write_html_posts(&self, _replace: bool) {
+    pub fn write_html_posts(&self) {
         let template_file = OpenOptions::new()
             .read(true)
             .open(&self.config.html_template);
@@ -130,5 +130,53 @@ impl CrossPub {
                 .expect("Could not write to file");
         }
     }
-}
 
+    pub fn write_gemini_posts(&self) {
+        let template_file = OpenOptions::new()
+            .read(true)
+            .open(&self.config.gemini_template);
+        let mut template_file = match template_file {
+            Ok(t) => t,
+            Err(_) => {
+                panic!("Could not open Gemini template");
+            }
+        };
+        let mut template_buffer = String::new();
+        template_file.read_to_string(&mut template_buffer)
+            .expect("Could not read from Gemini template.");
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        tt.add_formatter("long_date_formatter", long_date_formatter);
+        tt.add_template("gemini", &template_buffer)
+            .expect("Could not add template.");
+
+        for post in &self.posts {
+            let context = Context {
+                site: self.config.clone(),
+                post: post.clone(),
+            };
+            let post_path_string = format!("{}/{}/{}.gmi",
+                self.config.gemini_root,
+                self.config.post_dir,
+                post.filename);
+
+            if self.verbose { display_write_info(&post, &post_path_string); }
+
+            let output = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(true)
+                .open(&post_path_string);
+            let mut output = match output {
+                Ok(o) => o,
+                Err(_) => {
+                    panic!("Could not open {} for writing", &post_path_string);
+                }
+            };
+
+            let rendered = tt.render("gemini", &context).unwrap();
+            output.write_all(rendered.as_bytes())
+                .expect("Could not write to file");
+        }
+    }
+}

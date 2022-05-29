@@ -14,8 +14,8 @@ fn main() {
         username: String::from("hiroantag"),
         default_index: true,
         about: String::from(""),
-        html_template: String::from("templates/post.html"),
-        gemini_template: String::from(""),
+        html_template: String::from("templates/html/post.html"),
+        gemini_template: String::from("templates/gemini/post.gmi"),
         default_style: true,
         css: String::from(""),
         html_root: String::from("/home/hiroantag/public_html"),
@@ -24,5 +24,6 @@ fn main() {
     };
     let mut cp = CrossPub::new(&config);
     cp.load_dir("test_gmi");
-    cp.write_html_posts(true);
+    cp.write_html_posts();
+    cp.write_gemini_posts();
 }
