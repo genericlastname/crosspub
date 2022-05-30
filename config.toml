@@ -19,6 +19,7 @@ custom_homepage = false
 # If false then crosspub will generate a list of links in posts_subdir/index.html
 # and put a link to that page on the homepage.
 list_posts_on_homepage = true
+use_about_page = false
 about_path = "/path/to/about.gmi"
 
 [templates]

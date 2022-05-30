@@ -6,7 +6,7 @@ use chrono::NaiveDate;
 use serde::Serialize;
 use toml;
 
-use crate::settings::FMConfig;
+use crate::frontmatter::Frontmatter;
 use crate::gemtext::parse_gemtext;
 
 #[derive(Clone, Debug, Serialize)]
@@ -59,17 +59,17 @@ impl Post {
         let lines: Vec<String> = reader.lines().map(|l| l.unwrap()).collect();
 
         // Load frontmatter.
-        let fm_config: FMConfig = toml::from_str(
+        let frontmatter: Frontmatter = toml::from_str(
             &lines[1..=3].join("\n")
         ).expect(&format!("[{}] Could not parse frontmatter.",
             &source_path.to_str().unwrap()));
 
         let mut post = Post::default();
-        post.title = fm_config.title;
-        post.date = NaiveDate::parse_from_str(&fm_config.date, "%Y-%m-%d")
+        post.title = frontmatter.title;
+        post.date = NaiveDate::parse_from_str(&frontmatter.date, "%Y-%m-%d")
             .expect(&format!("[{}] Date is formatted incorrectly.",
                     source_path.to_str().unwrap()));
-        post.filename = format!("{}_{}", post.date.format("%Y%m%d"), fm_config.slug);
+        post.filename = format!("{}_{}", post.date.format("%Y%m%d"), frontmatter.slug);
 
         // Generate content bodies for HTML and Gemini.
         let tokens = parse_gemtext(&lines[5..]);
@@ -80,20 +80,4 @@ impl Post {
 
         Ok(post)
     }
-
-    // pub fn write_html(&self, path: PathBuf, config: &Config) {
-    //     let template_file = OpenOptions::new().read(true).open(&path);
-    //     let mut template_file = match template_file {
-    //         Ok(t) => t,
-    //         Err(_) => {
-    //             panic!("Could not open HTML template");
-    //         }
-    //     };
-    //     let mut template_buffer = String::new();
-    //     template_file.read_to_string(&mut template_buffer).unwrap();
-
-    //     let mut tt = TinyTemplate::new();
-    //     tt.add_template("html", &template_buffer).unwrap();
-        
-    // }
 }

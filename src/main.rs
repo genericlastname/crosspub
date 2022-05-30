@@ -4,28 +4,48 @@ pub mod frontmatter;
 pub mod gemtext;
 pub mod post;
 
-use crosspub::CrossPub;
-use config::Config;
+use std::process::exit;
+use std::path::PathBuf;
+
+use clap::Parser;
+
+use crosspub::{Args, CrossPub};
 
 fn main() {
-    // let p = std::path::Path::new("/home/hiroantag/projects/writings/test.gmi");
-    // let mut post_list = Vec::new();
-    let config = Config {
-        name: String::from("hiroantag's web living room"),
-        url: String::from("retrace.club/"),
-        username: String::from("hiroantag"),
-        default_index: true,
-        about: String::from(""),
-        html_template: String::from("templates/html/post.html"),
-        gemini_template: String::from("templates/gemini/post.gmi"),
-        default_style: true,
-        css: String::from(""),
-        html_root: String::from("/home/hiroantag/public_html"),
-        gemini_root: String::from("/home/hiroantag/public_gemini"),
-        post_dir: String::from("posts"),
+    let mut args = Args::parse();
+    if args.dir.is_none() {
+        args.dir = Some(PathBuf::from("."));
+    }
+
+    // Load config
+    let xdg_dirs = xdg::BaseDirectories::with_prefix("crosspub").unwrap();
+    let config_path: PathBuf;
+
+    if !args.config.is_none() {
+        config_path = args.config.clone().unwrap();
+    } else {
+        config_path = match xdg_dirs.find_config_file("config.toml") {
+            Some(p) => p,
+            None => {
+                eprintln!("Error: could not find config file.");
+                exit(1);
+            }
+        };
+    }
+    let config_contents = match std::fs::read_to_string(&config_path) {
+        Ok(c) => c,
+        Err(_) => {
+            eprintln!("Error: could not open config file {}.", config_path.to_string_lossy());
+            exit(1);
+        }
     };
-    let mut cp = CrossPub::new(&config);
-    cp.load_dir("test_gmi");
-    cp.write_html_posts();
-    cp.write_gemini_posts();
+    let config = match toml::from_str(&config_contents) {
+        Ok(c) => c,
+        Err(_) => {
+            eprintln!("Error: could not parse config.toml.");
+            exit(1);
+        }
+    };
+    
+    let mut crosspub = CrossPub::new(&config, &args);
 }
