@@ -1,14 +1,16 @@
 pub mod crosspub;
+pub mod config;
+pub mod frontmatter;
 pub mod gemtext;
 pub mod post;
-pub mod settings;
 
 use crosspub::CrossPub;
+use config::Config;
 
 fn main() {
     // let p = std::path::Path::new("/home/hiroantag/projects/writings/test.gmi");
     // let mut post_list = Vec::new();
-    let config = settings::Config {
+    let config = Config {
         name: String::from("hiroantag's web living room"),
         url: String::from("retrace.club/"),
         username: String::from("hiroantag"),

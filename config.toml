@@ -1,33 +1,36 @@
+[site]
 # The name of your site which gets used in tab titles and the header.
 name = "example"
-# The full url of yor site.
+# The base url of yor site.
 url = "http://example.com/"
 # Your tilde extension (without the ~ character)
 username = "user"
-
-# Set this to true if you want crosspub to generate index.html for you.
-#
-# If default_index = true: post list is generated on the user's
-# homepage.
-#
-# If default_index = false: the user provides their own homepage and the post
-# list is generated at /posts/posts.html
-default_index = true;
-# Change this to the path of a gemtext file that will be used to generate
-# about.html. Only used if default_index = true.
-about = "/path/to/about.gmi"
-# Change this to the path to your HTML post template file
-html_template = "/path/to/template.html"
-# Change this to the path to your gemini post template file
-gemini_template = "/path/to/template.gmi"
-
-# Root directories of html and gemini sites. Change these to the actual paths.
 html_root = "/home/user/public_html"
 gemini_root = "/home/user/public_gemini"
+posts_subdir = "posts"
+topics_subdir = "topics"
 
-# Set this to true if you want to load custom CSS, otherwise the default style
-# will be used.
-default_style = false;
-# Change this to a path to your custom CSS. Only used if default_style = false.
-# This path is RELATIVE to your html_root.
-css = "path/to/style.css"
+[homepage]
+# When custom_homepage = true crosspub generates index.html and index.gmi
+custom_homepage = false
+# If list_posts_on_homepage = true then crosspub generates a list of links on
+# index.html and index.gmi.
+#
+# If false then crosspub will generate a list of links in posts_subdir/index.html
+# and put a link to that page on the homepage.
+list_posts_on_homepage = true
+about_path = "/path/to/about.gmi"
+
+[templates]
+# If custom_templates = false crosspub will use the built-in templates
+# If true it will search for
+# - insert template filenames here
+# in the custom_html_path and custom_gemini_path directories
+custom_templates = false
+custom_html_path = "/path/to/html_templates"
+custom_gemini_path = "/path/to/gemini_templates"
+# If custom_style = false crosspub will use the built-in CSS
+# If true it will use the CSS file given by custom_css_rel_path
+# NOTE: custom_css_rel_path is relative to html_root.
+custom_style = false
+custom_css_rel_path = "path/to/style.css"

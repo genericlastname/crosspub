@@ -15,10 +15,3 @@ pub struct Config {
     pub gemini_root: String,
     pub post_dir: String,
 }
-
-#[derive(Deserialize)]
-pub struct FMConfig {
-    pub title: String,
-    pub slug: String,
-    pub date: String,
-}
