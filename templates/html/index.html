@@ -8,19 +8,28 @@
 <nav>
 <h2>Navigation</h2>
 <ul>
-<li><a href="/~{username}">Home</a></li>
-<li><a href="/~{username}/about.html">About</a></li>
-<li><a href="gemini://{site_url}/~{username}">Gemini Feed</a></li>
+<li><a href="/~{site.username}">Home</a></li>
+<li><a href="/~{site.username}/about.html">About</a></li>
+<li><a href="gemini://{site.url}/~{site.username}">Gemini Feed</a></li>
 </ul>
 </nav>
 </div>
 <hr>
 <div id="content">
-<h2>Posts</h2>
+<h2>{site.posts_subdir}</h2>
 {{ for post in posts }}
-<p>{post.date} <a href="/~{site.username}/posts/{post.filename}.html">
-{post.title}</a></p>
+<li>{post.date} <a href="/~{site.username}/posts/{post.filename}.html">
+{post.title}</a></li>
 {{ endfor }}
+
+{{ if has_topics }}
+<h2>{site.topics_subdir}</h2>
+{{ for topic in topics }}
+<li><a href="/~{site.username}/{topic.filename}.html">
+{topic.title}</a></li>
+{{ endfor }}
+{{ endif }}
+
 </div>
 </main>
 </body>

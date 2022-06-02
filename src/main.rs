@@ -3,6 +3,7 @@ pub mod config;
 pub mod frontmatter;
 pub mod gemtext;
 pub mod post;
+pub mod topic;
 
 use std::process::exit;
 use std::path::PathBuf;
@@ -47,5 +48,10 @@ fn main() {
         }
     };
     
-    let mut crosspub = CrossPub::new(&config, &args);
+    let crosspub = CrossPub::new(&config, &args);
+    crosspub.write_posts();
+    crosspub.write_topics();
+    crosspub.generate_index();
+
+    println!("Finished");
 }

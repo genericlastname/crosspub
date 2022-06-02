@@ -1,6 +1,7 @@
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader};
 use std::fs::OpenOptions;
 use std::path::PathBuf;
+use std::process::exit;
 
 use chrono::NaiveDate;
 use serde::Serialize;
@@ -48,27 +49,39 @@ impl Default for Post {
 }
 
 impl Post {
-    pub fn from_source(source_path: PathBuf) -> Result<Post, io::Error> {
+    pub fn from_source(source_path: PathBuf) -> Post {
         // Read from source .gmi file.
         let source = OpenOptions::new().read(true).open(&source_path);
         let source = match source {
             Ok(s) => s,
-            Err(error) => return Err(error),
+            Err(_) => {
+                eprintln!("Error: Could not open file {}",
+                    &source_path.to_string_lossy());
+                exit(1);
+            },
         };
         let reader = BufReader::new(source);
         let lines: Vec<String> = reader.lines().map(|l| l.unwrap()).collect();
 
         // Load frontmatter.
-        let frontmatter: Frontmatter = toml::from_str(
-            &lines[1..=3].join("\n")
-        ).expect(&format!("[{}] Could not parse frontmatter.",
-            &source_path.to_str().unwrap()));
+        let frontmatter: Frontmatter = match toml::from_str(&lines[1..=3].join("\n")) {
+            Ok(fm) => fm,
+            Err(_) => {
+                eprintln!("Error: date formatted in {}", &source_path.to_string_lossy());
+                exit(1);
+            }
+        };
 
         let mut post = Post::default();
         post.title = frontmatter.title;
-        post.date = NaiveDate::parse_from_str(&frontmatter.date, "%Y-%m-%d")
-            .expect(&format!("[{}] Date is formatted incorrectly.",
-                    source_path.to_str().unwrap()));
+        post.date = match NaiveDate::parse_from_str(&frontmatter.date, "%Y-%m-%d") {
+            Ok(p) => p,
+            Err(_) => {
+                eprintln!("Error: Date formatted incorrectly in {}",
+                    &source_path.to_string_lossy());
+                exit(1);
+            }
+        };
         post.filename = format!("{}_{}", post.date.format("%Y%m%d"), frontmatter.slug);
 
         // Generate content bodies for HTML and Gemini.
@@ -78,6 +91,6 @@ impl Post {
         }
         post.gemini_content = lines[5..].join("\n");
 
-        Ok(post)
+        post
     }
 }

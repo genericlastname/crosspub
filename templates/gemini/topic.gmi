@@ -1,0 +1,9 @@
+{site.name}
+
+## Navigation
+=> gemini://{site.url}/~{site.username} Home
+=> gemini://{site.url}/~{site.username}/about.gmi About
+
+## {topic.title}
+
+{topic.gemini_content}

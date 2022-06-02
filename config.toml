@@ -1,12 +1,12 @@
 [site]
 # The name of your site which gets used in tab titles and the header.
-name = "example"
+name = "hiroantag's web living room"
 # The base url of yor site.
-url = "http://example.com/"
+url = "retrace.club/"
 # Your tilde extension (without the ~ character)
-username = "user"
-html_root = "/home/user/public_html"
-gemini_root = "/home/user/public_gemini"
+username = "hiroantag"
+html_root = "/home/hiroantag/public_html"
+gemini_root = "/home/hiroantag/public_gemini"
 posts_subdir = "posts"
 topics_subdir = "topics"
 
