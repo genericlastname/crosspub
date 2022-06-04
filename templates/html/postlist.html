@@ -1,0 +1,28 @@
+<head>
+<title>{site.posts_subdir} | {site.name}</title>
+<link rel="stylesheet" href="/~{site.username}/css/style.css">
+</head>
+<body>
+<main>
+<div id="header">
+<p>{site.name}</p>
+<nav>
+<h2>Navigation</h2>
+<ul>
+<li><a href="/~{site.username}">Home</a></li>
+{{ if has_about }}
+<li><a href="/~{site.username}/about.html">About</a></li>
+{{ endif }}
+</ul>
+</nav>
+</div>
+<hr>
+<div id="content">
+<h2>{site.posts_subdir}</h2>
+{{ for post in posts }}
+<li>{post.date} <a href="/~{site.username}/posts/{post.filename}.html">
+{post.title}</a></li>
+{{ endfor }}
+</div>
+</main>
+</body>

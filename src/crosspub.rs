@@ -87,8 +87,10 @@ impl CrossPub {
             cp.load_dir(PathBuf::from("."));
         }
 
-        if let Some(pl) = c.homepage.list_posts_on_homepage {
+
+        if let Some(pl) = c.homepage.post_list {
             cp.post_listing = pl;
+            println!("Postlist\n\n");
         }
 
         if let Some(a) = c.homepage.use_about_page {
@@ -107,6 +109,7 @@ impl CrossPub {
             };
             cp.about = About::from_source(about_source_path);
         }
+        println!("{:?}", cp.post_listing);
 
         cp
     }
@@ -123,6 +126,11 @@ impl CrossPub {
         if self.has_about {
             self.generate_about_html();
             self.generate_about_gmi();
+        }
+
+        if self.post_listing {
+            self.generate_post_listing_html();
+            self.generate_post_listing_gmi();
         }
     }
 
@@ -205,6 +213,162 @@ impl CrossPub {
             Ok(_) => {}
             Err(_) => {
                 eprintln!("Error: Could not write to {}", &index_path.to_string_lossy());
+                exit(1);
+            }
+        }
+    }
+
+    fn generate_post_listing_html(&self) {
+        // Open post listing template
+        let template_file;
+        let postlist_template_path: PathBuf = [
+            self.xdg_dirs.get_data_home(),
+            PathBuf::from("templates/html/postlist.html"),
+        ].iter().collect();
+
+        template_file = OpenOptions::new()
+            .read(true)
+            .open(postlist_template_path);
+        let mut template_file = match template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open HTML postlist template");
+                exit(1);
+            }
+        };
+        // Read template to String and load into parser.
+        let mut template_buffer = String::new();
+        match template_file.read_to_string(&mut template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from HTML template");
+                exit(1)
+            }
+        }
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        match tt.add_template("html", &template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error Could not parse HTML postlist template file");
+                exit(1);
+            }
+        }
+
+        let has_topics = !self.topics.is_empty();
+
+        let context = IndexContext {
+            site: self.config.site.clone(),
+            posts: self.posts.clone(),
+            topics: self.topics.clone(),
+            has_topics,
+            has_about: self.has_about,
+        };
+
+        println!("Writing postlist.html");
+
+        let postlist_path: PathBuf = [
+            &self.config.site.html_root,
+            &self.config.site.posts_subdir,
+            "posts.html",
+        ].iter().collect();
+
+        let output = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&postlist_path);
+        let mut output = match output {
+            Ok(o) => o,
+            Err(_) => {
+                eprintln!("Error: Could not open {} for writing", &postlist_path.to_string_lossy());
+                exit(1);
+            }
+        };
+
+        let rendered = tt.render("html", &context).unwrap();
+        match output.write_all(rendered.as_bytes()) {
+            Ok(_) => {}
+            Err(_) => {
+                eprintln!("Error: Could not write to {}", &postlist_path.to_string_lossy());
+                exit(1);
+            }
+        }
+    }
+
+    fn generate_post_listing_gmi(&self) {
+        // Open post listing template
+        let template_file;
+        let postlist_template_path: PathBuf = [
+            self.xdg_dirs.get_data_home(),
+            PathBuf::from("templates/gemini/postlist.gmi"),
+        ].iter().collect();
+
+        template_file = OpenOptions::new()
+            .read(true)
+            .open(postlist_template_path);
+        let mut template_file = match template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open Gemini postlist template");
+                exit(1);
+            }
+        };
+        // Read template to String and load into parser.
+        let mut template_buffer = String::new();
+        match template_file.read_to_string(&mut template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from Gemini template");
+                exit(1)
+            }
+        }
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        match tt.add_template("gemini", &template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error Could not parse Gemini postlist template file");
+                exit(1);
+            }
+        }
+
+        let has_topics = !self.topics.is_empty();
+
+        let context = IndexContext {
+            site: self.config.site.clone(),
+            posts: self.posts.clone(),
+            topics: self.topics.clone(),
+            has_topics,
+            has_about: self.has_about,
+        };
+
+        println!("Writing postlist.gmi");
+
+        let postlist_path: PathBuf = [
+            &self.config.site.gemini_root,
+            &self.config.site.posts_subdir,
+            "posts.gmi",
+        ].iter().collect();
+
+        let output = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&postlist_path);
+        let mut output = match output {
+            Ok(o) => o,
+            Err(_) => {
+                eprintln!("Error: Could not open {} for writing", &postlist_path.to_string_lossy());
+                exit(1);
+            }
+        };
+
+        let rendered = tt.render("gemini", &context).unwrap();
+        match output.write_all(rendered.as_bytes()) {
+            Ok(_) => {}
+            Err(_) => {
+                eprintln!("Error: Could not write to {}", &postlist_path.to_string_lossy());
                 exit(1);
             }
         }
