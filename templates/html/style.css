@@ -1,25 +1,10 @@
-:root {
-  --lmode-fg: black;
-  --lmode-bg: white;
-
-  --lmode-link-bg: #dfdfdf;
-  --dmode-link-bg: #1c394e;
-
-  --dmode-fg: #fff8e0;
-  --dmode-bg: #151515;
-
-  --light-bg-color: #263651;
-  --dark-bg-color: #172132
-}
-
 body {
-  font-family: monospace;
-  /* background-image: url("../images/floppy.png"); */
-  background-color: var(--light-bg-color);
+  font-family: sans-serif;
+  background-color: white;
 }
 
 main {
-  background-color: var(--lmode-bg);
+  background-color: white;
   max-width: 40em;
   padding: 1.2em;
   margin: auto;
@@ -29,18 +14,9 @@ p, a, li {
   font-size: 16px;
 }
 
-.aesthetic {
-  display: block;
-  object-fit: cover;
-  height: 200px;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 a {
-  background-color: var(--lmode-link-bg);
-  color: var(--lmode-fg);
+  background-color: #dfdfdf;
+  color: #1c394e;
 }
 
 a:hover {
@@ -50,21 +26,21 @@ a:hover {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: var(--dark-bg-color);
+    background-color: #151515;
   }
 
   main { 
-    background-color: var(--dmode-bg);
-    color: var(--dmode-fg);
+    background-color: #151515;
+    color: #fff8e0;
   }
 
   a {
-    background-color: var(--dmode-link-bg);
-    color: var(--dmode-fg);
+    background-color: #1c394e;
+    color: #fff8e0;
   }
 
   a:hover {
-    background-color: var(--dmode-bg);
+    background-color: #151515;
     color: #4b749d;
   }
 }
@@ -84,18 +60,11 @@ a:hover {
     font-size: 500%;
   }
 
-  @media (prefers-color-scheme: dark) {
-    body { background-color: var(--dmode-bg); }
-  }
-
   main {
     padding-top: 50px;
     padding-bottom: 100px;
     max-width: 100%;
     max-height: auto;
     margin: 0;
-  }
-
-  nav li {
   }
 }
