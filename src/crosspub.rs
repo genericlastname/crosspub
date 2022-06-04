@@ -83,20 +83,25 @@ impl CrossPub {
     fn generate_index_html(&self) {
         // Open index template
         let template_file;
-        let index_template_path = match self.xdg_dirs.find_data_file("templates/html/index.html") {
-            Some(t) => t,
-            _ => {
-                eprintln!("Error: Could not find HTML index template.");
-                exit(1);
-            }
-        };
+        let index_template_path: PathBuf;
+
+        if self.config.homepage.custom_homepage {
+            // Load from users home directory.
+            index_template_path = [
+                self.xdg_dirs.get_data_home(),
+                PathBuf::from("templates/html/index.html"),
+            ].iter().collect();
+        } else {
+            index_template_path = PathBuf::from("/usr/share/crosspub/templates/html/index.html")
+        }
+
         template_file = OpenOptions::new()
             .read(true)
             .open(index_template_path);
         let mut template_file = match template_file {
             Ok(t) => t,
             Err(_) => {
-                eprintln!("Error: Could not open HTML template");
+                eprintln!("Error: Could not open HTML index template");
                 exit(1);
             }
         };
@@ -114,7 +119,7 @@ impl CrossPub {
         match tt.add_template("html", &template_buffer) {
             Ok(_) => {},
             Err(_) => {
-                eprintln!("Error could not parse HTML index template file");
+                eprintln!("Error Could not parse HTML index template file");
                 exit(1);
             }
         }
@@ -161,13 +166,18 @@ impl CrossPub {
     fn generate_index_gmi(&self) {
         // Open index template
         let template_file;
-        let index_template_path = match self.xdg_dirs.find_data_file("templates/gemini/index.gmi") {
-            Some(t) => t,
-            _ => {
-                eprintln!("Error: Could not find Gemini index template.");
-                exit(1);
-            }
-        };
+        let index_template_path: PathBuf;
+
+        if self.config.homepage.custom_homepage {
+            // Load from users home directory.
+            index_template_path = [
+                self.xdg_dirs.get_data_home(),
+                PathBuf::from("templates/gemini/index.gmi"),
+            ].iter().collect();
+        } else {
+            index_template_path = PathBuf::from("/usr/share/crosspub/templates/gemini/index.gmi")
+        }
+
         template_file = OpenOptions::new()
             .read(true)
             .open(index_template_path);
