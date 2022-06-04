@@ -11,6 +11,7 @@ use serde::Serialize;
 use serde_json::Value;
 use tinytemplate::TinyTemplate;
 
+use crate::about::About;
 use crate::post::Post;
 use crate::topic::Topic;
 use crate::config::{Config, Site};
@@ -30,12 +31,14 @@ pub struct Args {
 struct PostContext {
     site: Site,
     post: Post,
+    has_about: bool,
 }
 
 #[derive(Serialize)]
 struct TopicContext {
     site: Site,
     topic: Topic,
+    has_about: bool,
 }
 
 #[derive(Serialize)]
@@ -44,6 +47,14 @@ struct IndexContext {
     posts: Vec<Post>,
     topics: Vec<Topic>,
     has_topics: bool,
+    has_about: bool,
+}
+
+#[derive(Serialize)]
+struct AboutContext {
+    site: Site,
+    about: About,
+    has_about: bool,
 }
 
 pub struct CrossPub {
@@ -51,6 +62,7 @@ pub struct CrossPub {
     latest_post: Post,
     posts: Vec<Post>,
     topics: Vec<Topic>,
+    about: About,
     xdg_dirs: xdg::BaseDirectories,
     post_listing: bool,
     has_about: bool,
@@ -63,6 +75,7 @@ impl CrossPub {
             latest_post: Post::default(),
             posts: Vec::new(),
             topics: Vec::new(),
+            about: About::default(),
             xdg_dirs: xdg::BaseDirectories::with_prefix("crosspub").unwrap(),
             post_listing: false,
             has_about: false,
@@ -84,6 +97,17 @@ impl CrossPub {
 
         cp.latest_post = cp.posts[0].clone();
 
+        if cp.has_about {
+            let about_source_path = match cp.xdg_dirs.find_data_file("about.gmi") {
+                Some(a) => a,
+                _ => {
+                    eprintln!("Error: Could not find about.gmi file in ~/.local/share/crosspub");
+                    exit(1);
+                }
+            };
+            cp.about = About::from_source(about_source_path);
+        }
+
         cp
     }
 
@@ -95,6 +119,11 @@ impl CrossPub {
         self.generate_index_html();
         self.generate_index_gmi();
         self.copy_css();
+
+        if self.has_about {
+            self.generate_about_html();
+            self.generate_about_gmi();
+        }
     }
 
     fn generate_index_html(&self) {
@@ -147,7 +176,8 @@ impl CrossPub {
             site: self.config.site.clone(),
             posts: self.posts.clone(),
             topics: self.topics.clone(),
-            has_topics
+            has_topics,
+            has_about: self.has_about,
         };
 
         println!("Writing index.html");
@@ -231,6 +261,7 @@ impl CrossPub {
             posts: self.posts.clone(),
             topics: self.topics.clone(),
             has_topics,
+            has_about: self.has_about,
         };
 
         println!("Writing index.gmi");
@@ -300,6 +331,150 @@ impl CrossPub {
         }
     }
 
+    fn generate_about_html(&self) {
+        let about_template_path = match self.xdg_dirs.find_data_file("templates/html/about.html") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find HTML post template.");
+                exit(1);
+            }
+        };
+        let template_file = OpenOptions::new()
+            .read(true)
+            .open(about_template_path);
+        let mut template_file = match template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open HTML about template");
+                exit(1);
+            }
+        };
+
+        // Read template to String and load into parser.
+        let mut template_buffer = String::new();
+        match template_file.read_to_string(&mut template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from HTML template");
+                exit(1)
+            }
+        }
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        match tt.add_template("html", &template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not parse HTML about template file");
+                exit(1)
+            }
+        }
+
+        let context = AboutContext {
+            site: self.config.site.clone(),
+            about: self.about.clone(),
+            has_about: self.has_about,
+        };
+        let about_path: PathBuf = [
+            &self.config.site.html_root,
+            "about.html"
+        ].iter().collect();
+
+        println!("Writing about.html to {}", &about_path.to_string_lossy());
+
+        let output = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&about_path);
+        let mut output = match output {
+            Ok(o) => o,
+            Err(_) => {
+                eprintln!("Error: Could not open {} for writing", &about_path.to_string_lossy());
+                exit(1);
+            }
+        };
+        let rendered = tt.render("html", &context).unwrap();
+        match output.write_all(rendered.as_bytes()) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not write to {}", &about_path.to_str().unwrap());
+                exit(1);
+            }
+        }
+    }
+
+    fn generate_about_gmi(&self) {
+        let about_template_path = match self.xdg_dirs.find_data_file("templates/gemini/about.gmi") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find Gemini post template.");
+                exit(1);
+            }
+        };
+        let template_file = OpenOptions::new()
+            .read(true)
+            .open(about_template_path);
+        let mut template_file = match template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open Gemini about template");
+                exit(1);
+            }
+        };
+
+        // Read template to String and load into parser.
+        let mut template_buffer = String::new();
+        match template_file.read_to_string(&mut template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from Gemini template");
+                exit(1)
+            }
+        }
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        match tt.add_template("gemini", &template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not parse Gemini about template file");
+                exit(1)
+            }
+        }
+
+        let context = AboutContext {
+            site: self.config.site.clone(),
+            about: self.about.clone(),
+            has_about: self.has_about,
+        };
+        let about_path: PathBuf = [
+            &self.config.site.gemini_root,
+            "about.gmi"
+        ].iter().collect();
+
+        println!("Writing about.gmi to {}", &about_path.to_string_lossy());
+
+        let output = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&about_path);
+        let mut output = match output {
+            Ok(o) => o,
+            Err(_) => {
+                eprintln!("Error: Could not open {} for writing", &about_path.to_string_lossy());
+                exit(1);
+            }
+        };
+        let rendered = tt.render("gemini", &context).unwrap();
+        match output.write_all(rendered.as_bytes()) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not write to {}", &about_path.to_str().unwrap());
+                exit(1);
+            }
+        }
+    }
+
     fn write_html_posts(&self) {
         // Open post template
         let template_file;
@@ -346,6 +521,7 @@ impl CrossPub {
             let context = PostContext {
                 site: self.config.site.clone(),
                 post: post.clone(),
+                has_about: self.has_about,
             };
             let mut post_path: PathBuf = [
                 &self.config.site.html_root,
@@ -427,6 +603,7 @@ impl CrossPub {
             let context = TopicContext {
                 site: self.config.site.clone(),
                 topic: topic.clone(),
+                has_about: self.has_about,
             };
             let mut topic_path: PathBuf = [
                 &self.config.site.html_root,
@@ -510,6 +687,7 @@ impl CrossPub {
             let context = PostContext {
                 site: self.config.site.clone(),
                 post: post.clone(),
+                has_about: self.has_about,
             };
             let mut post_path: PathBuf = [
                 &self.config.site.gemini_root,
@@ -591,6 +769,7 @@ impl CrossPub {
             let context = TopicContext {
                 site: self.config.site.clone(),
                 topic: topic.clone(),
+                has_about: self.has_about,
             };
             let mut topic_path: PathBuf = [
                 &self.config.site.gemini_root,

@@ -10,7 +10,9 @@
 <h2>Navigation</h2>
 <ul>
 <li><a href="/~{site.username}">Home</a></li>
+{{ if has_about }}
 <li><a href="/~{site.username}/about.html">About</a></li>
+{{ endif }}
 <li><a href="gemini://{site.url}/~{site.username}">Gemini Feed</a></li>
 </ul>
 </nav>

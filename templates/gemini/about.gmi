@@ -1,0 +1,8 @@
+## Navigation
+=> gemini://{site.url}/~{site.username} Home
+{{ if has_about }}
+=> gemini://{site.url}/~{site.username}/about.gmi About
+{{ endif }}
+
+## About
+{about.gemini_content}

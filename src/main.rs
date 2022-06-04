@@ -1,3 +1,4 @@
+pub mod about;
 pub mod crosspub;
 pub mod config;
 pub mod frontmatter;
