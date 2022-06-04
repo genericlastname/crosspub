@@ -48,24 +48,41 @@ struct IndexContext {
 
 pub struct CrossPub {
     config: Config,
+    latest_post: Post,
     posts: Vec<Post>,
     topics: Vec<Topic>,
     xdg_dirs: xdg::BaseDirectories,
+    post_listing: bool,
+    has_about: bool,
 }
 
 impl CrossPub {
     pub fn new(c: &Config, a: &Args) -> CrossPub {
         let mut cp = CrossPub {
             config: c.clone(),
+            latest_post: Post::default(),
             posts: Vec::new(),
             topics: Vec::new(),
             xdg_dirs: xdg::BaseDirectories::with_prefix("crosspub").unwrap(),
+            post_listing: false,
+            has_about: false,
         };
+        
         if let Some(d) = &a.dir {
             cp.load_dir(d.to_path_buf());
         } else {
             cp.load_dir(PathBuf::from("."));
         }
+
+        if let Some(pl) = c.homepage.list_posts_on_homepage {
+            cp.post_listing = pl;
+        }
+
+        if let Some(a) = c.homepage.use_about_page {
+            cp.has_about = a;
+        }
+
+        cp.latest_post = cp.posts[0].clone();
 
         cp
     }
@@ -213,7 +230,7 @@ impl CrossPub {
             site: self.config.site.clone(),
             posts: self.posts.clone(),
             topics: self.topics.clone(),
-            has_topics
+            has_topics,
         };
 
         println!("Writing index.gmi");

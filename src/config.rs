@@ -22,5 +22,4 @@ pub struct Homepage {
     pub custom_homepage: bool,
     pub list_posts_on_homepage: Option<bool>,
     pub use_about_page: Option<bool>,
-    pub about_path: Option<String>,
 }
