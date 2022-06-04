@@ -1,0 +1,101 @@
+:root {
+  --lmode-fg: black;
+  --lmode-bg: white;
+
+  --lmode-link-bg: #dfdfdf;
+  --dmode-link-bg: #1c394e;
+
+  --dmode-fg: #fff8e0;
+  --dmode-bg: #151515;
+
+  --light-bg-color: #263651;
+  --dark-bg-color: #172132
+}
+
+body {
+  font-family: monospace;
+  /* background-image: url("../images/floppy.png"); */
+  background-color: var(--light-bg-color);
+}
+
+main {
+  background-color: var(--lmode-bg);
+  max-width: 40em;
+  padding: 1.2em;
+  margin: auto;
+}
+
+p, a, li {
+  font-size: 16px;
+}
+
+.aesthetic {
+  display: block;
+  object-fit: cover;
+  height: 200px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+a {
+  background-color: var(--lmode-link-bg);
+  color: var(--lmode-fg);
+}
+
+a:hover {
+  background-color: white;
+  color: blue;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--dark-bg-color);
+  }
+
+  main { 
+    background-color: var(--dmode-bg);
+    color: var(--dmode-fg);
+  }
+
+  a {
+    background-color: var(--dmode-link-bg);
+    color: var(--dmode-fg);
+  }
+
+  a:hover {
+    background-color: var(--dmode-bg);
+    color: #4b749d;
+  }
+}
+
+@media (min-device-width: 320px) and (max-device-width: 1024px) {
+  body {
+    padding: 0;
+    margin: 0;
+    background-color: white;
+  }
+
+  p, a, li {
+    font-size: 110%;
+  }
+
+  h1, h2, h3 {
+    font-size: 500%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body { background-color: var(--dmode-bg); }
+  }
+
+  main {
+    padding-top: 50px;
+    padding-bottom: 100px;
+    max-width: 100%;
+    max-height: auto;
+    margin: 0;
+  }
+
+  nav li {
+  }
+}

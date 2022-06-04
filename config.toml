@@ -21,17 +21,3 @@ custom_homepage = false
 list_posts_on_homepage = true
 use_about_page = false
 about_path = "/path/to/about.gmi"
-
-[templates]
-# If custom_templates = false crosspub will use the built-in templates
-# If true it will search for
-# - insert template filenames here
-# in the custom_html_path and custom_gemini_path directories
-custom_templates = false
-custom_html_path = "/path/to/html_templates"
-custom_gemini_path = "/path/to/gemini_templates"
-# If custom_style = false crosspub will use the built-in CSS
-# If true it will use the CSS file given by custom_css_rel_path
-# NOTE: custom_css_rel_path is relative to html_root.
-custom_style = false
-custom_css_rel_path = "path/to/style.css"

@@ -10,7 +10,7 @@ use toml;
 use crate::frontmatter::Frontmatter;
 use crate::gemtext::parse_gemtext;
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Post {
     pub title: String,
     pub filename: String,

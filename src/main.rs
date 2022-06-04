@@ -49,9 +49,7 @@ fn main() {
     };
     
     let crosspub = CrossPub::new(&config, &args);
-    crosspub.write_posts();
-    crosspub.write_topics();
-    crosspub.generate_index();
+    crosspub.write();
 
     println!("Finished");
 }

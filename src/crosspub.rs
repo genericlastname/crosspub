@@ -1,7 +1,7 @@
 use std::io::Read;
 use std::io::Write as IoWrite;
 use std::fmt::Write;
-use std::fs::{OpenOptions, read_dir};
+use std::fs::{self, OpenOptions, read_dir};
 use std::path::PathBuf;
 use std::process::exit;
 
@@ -50,6 +50,7 @@ pub struct CrossPub {
     config: Config,
     posts: Vec<Post>,
     topics: Vec<Topic>,
+    xdg_dirs: xdg::BaseDirectories,
 }
 
 impl CrossPub {
@@ -58,6 +59,7 @@ impl CrossPub {
             config: c.clone(),
             posts: Vec::new(),
             topics: Vec::new(),
+            xdg_dirs: xdg::BaseDirectories::with_prefix("crosspub").unwrap(),
         };
         if let Some(d) = &a.dir {
             cp.load_dir(d.to_path_buf());
@@ -68,33 +70,26 @@ impl CrossPub {
         cp
     }
 
-    pub fn write_posts(&self) {
+    pub fn write(&self) {
         self.write_html_posts();
         self.write_gemini_posts();
-    }
-
-    pub fn write_topics(&self) {
         self.write_html_topics();
         self.write_gemini_topics();
-    }
-    
-    pub fn generate_index(&self) {
         self.generate_index_html();
         self.generate_index_gmi();
+        self.copy_css();
     }
 
     fn generate_index_html(&self) {
         // Open index template
         let template_file;
-        let index_template_path: PathBuf;
-        if self.config.templates.custom_templates {
-            index_template_path = [
-                self.config.templates.custom_html_path.as_ref().unwrap(),
-                "index.html"
-            ].iter().collect();
-        } else {
-            index_template_path = PathBuf::from("/usr/share/crosspub/templates/html/index.html");
-        }
+        let index_template_path = match self.xdg_dirs.find_data_file("templates/html/index.html") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find HTML index template.");
+                exit(1);
+            }
+        };
         template_file = OpenOptions::new()
             .read(true)
             .open(index_template_path);
@@ -166,15 +161,13 @@ impl CrossPub {
     fn generate_index_gmi(&self) {
         // Open index template
         let template_file;
-        let index_template_path: PathBuf;
-        if self.config.templates.custom_templates {
-            index_template_path = [
-                self.config.templates.custom_gemini_path.as_ref().unwrap(),
-                "index.gmi"
-            ].iter().collect();
-        } else {
-            index_template_path = PathBuf::from("/usr/share/crosspub/templates/gemini/index.gmi");
-        }
+        let index_template_path = match self.xdg_dirs.find_data_file("templates/gemini/index.gmi") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find Gemini index template.");
+                exit(1);
+            }
+        };
         template_file = OpenOptions::new()
             .read(true)
             .open(index_template_path);
@@ -243,66 +236,53 @@ impl CrossPub {
         }
     }
 
-    fn load_dir(&mut self, path: PathBuf) {
-        match read_dir(&path) {
-            Ok(d) => d,
-            Err(_) => {
-                eprintln!("Error: Given path is not a directory.");
+    fn copy_css(&self) {
+        let css_source_path = match self.xdg_dirs.find_data_file("templates/html/style.css") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find source CSS file.");
                 exit(1);
             }
         };
-        let posts_path: PathBuf = [&path.to_str().unwrap(), "posts"].iter().collect();
-        let posts_dir = match read_dir(posts_path) {
-            Ok(pd) => pd,
-            Err(_) => {
-                eprintln!("Error: No posts/ directory.");
-                exit(1);
-            }
-        };
-        let topics_path: PathBuf = [&path.to_str().unwrap(), "topics"].iter().collect();
-        let topics_dir = match read_dir(topics_path) {
-            Ok(td) => td,
-            Err(_) => {
-                eprintln!("Error: No topics/ directory.");
-                exit(1);
-            }
-        };
-        
-        for entry in posts_dir {
-            let entry = entry.unwrap();
-            let p = entry.path();
-            if p.extension() != Some(std::ffi::OsStr::new("gmi")) {
-                continue;
-            }
 
-            let post = Post::from_source(entry.path());
-            self.posts.push(post);
+        let css_dir_path: PathBuf = [
+            &self.config.site.html_root,
+            "css",
+        ].iter().collect();
+        if !css_dir_path.exists() {
+            match fs::create_dir(&css_dir_path) {
+                Ok(_) => {},
+                Err(_) => {
+                    eprintln!("Error: Could not create directory at {}",
+                        &css_dir_path.to_string_lossy());
+                    exit(1);
+                }
+            }
         }
-
-        for entry in topics_dir {
-            let entry = entry.unwrap();
-            let t = entry.path();
-            if t.extension() != Some(std::ffi::OsStr::new("gmi")) {
-                continue;
+        
+        let css_dest_path: PathBuf = [
+            &css_dir_path.to_string_lossy(),
+            "style.css",
+        ].iter().collect();
+        match fs::copy(css_source_path, css_dest_path) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not copy CSS file");
+                exit(1);
             }
-
-            let topic = Topic::from_source(entry.path());
-            self.topics.push(topic);
         }
     }
 
     fn write_html_posts(&self) {
         // Open post template
         let template_file;
-        let post_template_path: PathBuf;
-        if self.config.templates.custom_templates {
-            post_template_path = [
-                self.config.templates.custom_html_path.as_ref().unwrap(),
-                "post.html"
-            ].iter().collect();
-        } else {
-            post_template_path = PathBuf::from("/usr/share/crosspub/templates/html/post.html");
-        }
+        let post_template_path = match self.xdg_dirs.find_data_file("templates/html/post.html") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find HTML post template.");
+                exit(1);
+            }
+        };
         template_file = OpenOptions::new()
             .read(true)
             .open(post_template_path);
@@ -378,15 +358,13 @@ impl CrossPub {
     fn write_html_topics(&self) {
         // Open topic template
         let template_file;
-        let topic_template_path: PathBuf;
-        if self.config.templates.custom_templates {
-            topic_template_path = [
-                self.config.templates.custom_html_path.as_ref().unwrap(),
-                "topic.html"
-            ].iter().collect();
-        } else {
-            topic_template_path = PathBuf::from("/usr/share/crosspub/templates/html/topic.html");
-        }
+        let topic_template_path = match self.xdg_dirs.find_data_file("templates/html/topic.html") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find HTML topic template.");
+                exit(1);
+            }
+        };
         template_file = OpenOptions::new()
             .read(true)
             .open(topic_template_path);
@@ -460,15 +438,13 @@ impl CrossPub {
     fn write_gemini_posts(&self) {
         // Open post template
         let template_file;
-        let post_template_path: PathBuf;
-        if self.config.templates.custom_templates {
-            post_template_path = [
-                self.config.templates.custom_gemini_path.as_ref().unwrap(),
-                "post.gmi"
-            ].iter().collect();
-        } else {
-            post_template_path = PathBuf::from("/usr/share/crosspub/templates/gemini/post.gmi");
-        }
+        let post_template_path = match self.xdg_dirs.find_data_file("templates/gemini/post.gmi") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find Gemini post template.");
+                exit(1);
+            }
+        };
         template_file = OpenOptions::new()
             .read(true)
             .open(post_template_path);
@@ -544,15 +520,13 @@ impl CrossPub {
     fn write_gemini_topics(&self) {
         // Open topic template
         let template_file;
-        let topic_template_path: PathBuf;
-        if self.config.templates.custom_templates {
-            topic_template_path = [
-                self.config.templates.custom_gemini_path.as_ref().unwrap(),
-                "topic.gmi"
-            ].iter().collect();
-        } else {
-            topic_template_path = PathBuf::from("/usr/share/crosspub/templates/gemini/topic.gmi");
-        }
+        let topic_template_path = match self.xdg_dirs.find_data_file("templates/gemini/topic.gmi") {
+            Some(t) => t,
+            _ => {
+                eprintln!("Error: Could not find Gemini topic template.");
+                exit(1);
+            }
+        };
         template_file = OpenOptions::new()
             .read(true)
             .open(topic_template_path);
@@ -621,6 +595,56 @@ impl CrossPub {
                 }
             }
         }
+    }
+
+    fn load_dir(&mut self, path: PathBuf) {
+        match read_dir(&path) {
+            Ok(d) => d,
+            Err(_) => {
+                eprintln!("Error: Given path is not a directory.");
+                exit(1);
+            }
+        };
+        let posts_path: PathBuf = [&path.to_str().unwrap(), "posts"].iter().collect();
+        let posts_dir = match read_dir(posts_path) {
+            Ok(pd) => pd,
+            Err(_) => {
+                eprintln!("Error: No posts/ directory.");
+                exit(1);
+            }
+        };
+        let topics_path: PathBuf = [&path.to_str().unwrap(), "topics"].iter().collect();
+        let topics_dir = match read_dir(topics_path) {
+            Ok(td) => td,
+            Err(_) => {
+                eprintln!("Error: No topics/ directory.");
+                exit(1);
+            }
+        };
+        
+        for entry in posts_dir {
+            let entry = entry.unwrap();
+            let p = entry.path();
+            if p.extension() != Some(std::ffi::OsStr::new("gmi")) {
+                continue;
+            }
+
+            let post = Post::from_source(entry.path());
+            self.posts.push(post);
+        }
+        self.posts.sort_by(|a, b| b.date.partial_cmp(&a.date).unwrap());
+
+        for entry in topics_dir {
+            let entry = entry.unwrap();
+            let t = entry.path();
+            if t.extension() != Some(std::ffi::OsStr::new("gmi")) {
+                continue;
+            }
+
+            let topic = Topic::from_source(entry.path());
+            self.topics.push(topic);
+        }
+        self.topics.sort_by(|a, b| a.title.partial_cmp(&b.title).unwrap());
     }
 }
 
