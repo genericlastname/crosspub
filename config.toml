@@ -1,23 +1,34 @@
 [site]
 # The name of your site which gets used in tab titles and the header.
 name = "hiroantag's web living room"
+
 # The base url of yor site.
 url = "retrace.club/"
+
 # Your tilde extension (without the ~ character)
 username = "hiroantag"
+
+# The directories containing your HTML and Gemini roots
 html_root = "/home/hiroantag/public_html"
 gemini_root = "/home/hiroantag/public_gemini"
+
+# The subdirectories containing posts and topics respectively.
 posts_subdir = "posts"
 topics_subdir = "topics"
 
 [homepage]
-# When custom_homepage = true crosspub generates index.html and index.gmi
+# When custom_homepage = false crosspub generates index.html and index.gmi
+# If true you are responsible for providing index.html and index.gmi (see
+# README.md for more information.)
 custom_homepage = false
-# If list_posts_on_homepage = true then crosspub generates a list of links on
-# index.html and index.gmi.
+
+# When this is true crosspub generates a posts.html file in your posts_subdir
+# with links to all your posts.
+post_list = false
+
+# If true crosspub will look in ~/.local/share/crosspub (or whatever your
+# XDG_DATA_HOME is set as) to find an about.gmi.
 #
-# If false then crosspub will generate a list of links in posts_subdir/index.html
-# and put a link to that page on the homepage.
-list_posts_on_homepage = true
+# If custom_homepage is false crosspub will also automatically link to it in
+# the navigation header.
 use_about_page = false
-about_path = "/path/to/about.gmi"
