@@ -13,8 +13,6 @@ pub struct Site {
     pub username: String,
     pub html_root: String,
     pub gemini_root: String,
-    pub posts_subdir: String,
-    pub topics_subdir: String,
 }
 
 #[derive(Clone, Default, Serialize, Deserialize)]

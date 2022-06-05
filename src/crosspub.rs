@@ -277,7 +277,7 @@ impl CrossPub {
 
         let postlist_path: PathBuf = [
             &self.config.site.html_root,
-            &self.config.site.posts_subdir,
+            "posts",
             "posts.html",
         ].iter().collect();
 
@@ -356,7 +356,7 @@ impl CrossPub {
 
         let postlist_path: PathBuf = [
             &self.config.site.gemini_root,
-            &self.config.site.posts_subdir,
+            "posts",
             "posts.gmi",
         ].iter().collect();
 
@@ -699,7 +699,7 @@ impl CrossPub {
             };
             let mut post_path: PathBuf = [
                 &self.config.site.html_root,
-                &self.config.site.posts_subdir,
+                "posts",
                 &post.filename,
             ].iter().collect();
             post_path.set_extension("html");
@@ -865,7 +865,7 @@ impl CrossPub {
             };
             let mut post_path: PathBuf = [
                 &self.config.site.gemini_root,
-                &self.config.site.posts_subdir,
+                "posts",
                 &post.filename
             ].iter().collect();
             post_path.set_extension("gmi");

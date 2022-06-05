@@ -12,10 +12,6 @@ username = "hiroantag"
 html_root = "/home/hiroantag/public_html"
 gemini_root = "/home/hiroantag/public_gemini"
 
-# The subdirectories containing posts and topics respectively.
-posts_subdir = "posts"
-topics_subdir = "topics"
-
 [homepage]
 # When custom_homepage = false crosspub generates index.html and index.gmi
 # If true you are responsible for providing index.html and index.gmi (see

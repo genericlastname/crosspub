@@ -19,14 +19,14 @@
 </div>
 <hr>
 <div id="content">
-<h2>{site.posts_subdir}</h2>
+<h2>Posts</h2>
 {{ for post in posts }}
 <li>{post.date} <a href="/~{site.username}/posts/{post.filename}.html">
 {post.title}</a></li>
 {{ endfor }}
 
 {{ if has_topics }}
-<h2>{site.topics_subdir}</h2>
+<h2>Topics</h2>
 {{ for topic in topics }}
 <li><a href="/~{site.username}/{topic.filename}.html">
 {topic.title}</a></li>

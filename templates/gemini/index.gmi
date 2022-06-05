@@ -7,14 +7,14 @@
 => gemini://{site.url}/~{site.username}/about.gmi About
 {{ endif }}
 
-## {site.posts_subdir}
+## Posts
 
 {{ for post in posts }}
 => gemini://{site.url}/~{site.username}/posts/{post.filename}.gmi {post.title}
 {{ endfor }}
 
 {{ if has_topics }}
-## {site.topics_subdir}
+## Topics
 {{ for topic in topics }}
 => gemini://{site.url}/~{site.username}/{topic.filename}.gmi {topic.title}
 {{ endfor }}
