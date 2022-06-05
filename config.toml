@@ -13,18 +13,10 @@ html_root = "/home/hiroantag/public_html"
 gemini_root = "/home/hiroantag/public_gemini"
 
 [homepage]
-# When custom_homepage = false crosspub generates index.html and index.gmi
-# If true you are responsible for providing index.html and index.gmi (see
-# README.md for more information.)
-custom_homepage = false
+# If true crosspub will look in ~/.local/share/crosspub (or whatever your
+# XDG_DATA_HOME is set as) to find an about.gmi.
+use_about_page = false
 
 # When this is true crosspub generates a posts.html file in your posts_subdir
 # with links to all your posts.
 post_list = false
-
-# If true crosspub will look in ~/.local/share/crosspub (or whatever your
-# XDG_DATA_HOME is set as) to find an about.gmi.
-#
-# If custom_homepage is false crosspub will also automatically link to it in
-# the navigation header.
-use_about_page = false

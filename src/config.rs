@@ -17,7 +17,6 @@ pub struct Site {
 
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Homepage {
-    pub custom_homepage: bool,
     pub post_list: Option<bool>,
     pub use_about_page: Option<bool>,
 }
