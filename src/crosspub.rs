@@ -45,6 +45,7 @@ struct TopicContext {
 struct IndexContext {
     site: Site,
     posts: Vec<Post>,
+    latest_post: Post,
     topics: Vec<Topic>,
     has_topics: bool,
     has_about: bool,
@@ -182,6 +183,7 @@ impl CrossPub {
 
         let context = IndexContext {
             site: self.config.site.clone(),
+            latest_post: self.posts[0].clone(),
             posts: self.posts.clone(),
             topics: self.topics.clone(),
             has_topics,
@@ -259,6 +261,7 @@ impl CrossPub {
 
         let context = IndexContext {
             site: self.config.site.clone(),
+            latest_post: self.posts[0].clone(),
             posts: self.posts.clone(),
             topics: self.topics.clone(),
             has_topics,
@@ -337,6 +340,7 @@ impl CrossPub {
 
         let context = IndexContext {
             site: self.config.site.clone(),
+            latest_post: self.posts[0].clone(),
             posts: self.posts.clone(),
             topics: self.topics.clone(),
             has_topics,
@@ -422,6 +426,7 @@ impl CrossPub {
 
         let context = IndexContext {
             site: self.config.site.clone(),
+            latest_post: self.posts[0].clone(),
             posts: self.posts.clone(),
             topics: self.topics.clone(),
             has_topics,
