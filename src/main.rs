@@ -6,6 +6,7 @@ pub mod gemtext;
 pub mod post;
 pub mod topic;
 
+use std::fs;
 use std::process::exit;
 use std::path::PathBuf;
 
@@ -15,6 +16,29 @@ use crosspub::{Args, CrossPub};
 
 fn main() {
     let mut args = Args::parse();
+
+    // Initialize directory structure then quit.
+    if args.init {
+        match fs::create_dir("./posts") {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Couldn't create posts/ directory");
+                exit(1);
+            }
+        }
+        match fs::create_dir("./topics") {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Couldn't create topics/ directory");
+                exit(1);
+            }
+        }
+        println!("Initialized crosspub directories.\n\n\
+            Blogs/articles go in posts/\n\
+            Wikis/digital gardens go in topics/");
+        exit(0);
+    }
+
     if args.dir.is_none() {
         args.dir = Some(PathBuf::from("."));
     }

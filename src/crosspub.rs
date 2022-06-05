@@ -20,10 +20,17 @@ use crate::config::{Config, Site};
 #[clap(author = "hiroantag", version, about)]
 /// A cross publishing site generator
 pub struct Args {
+    /// Path to config file
     #[clap(short, long, parse(from_os_str))]
     pub config: Option<std::path::PathBuf>,
+
+    /// Path to directory with crosspub files
     #[clap(parse(from_os_str))]
     pub dir: Option<std::path::PathBuf>,
+
+    /// Initialize a directory for crosspub
+    #[clap(long)]
+    pub init: bool,
 }
 
 // Contexts for template generation.
@@ -91,7 +98,6 @@ impl CrossPub {
 
         if let Some(pl) = c.homepage.post_list {
             cp.post_listing = pl;
-            println!("Postlist\n\n");
         }
 
         if let Some(a) = c.homepage.use_about_page {
@@ -110,7 +116,6 @@ impl CrossPub {
             };
             cp.about = About::from_source(about_source_path);
         }
-        println!("{:?}", cp.post_listing);
 
         cp
     }
