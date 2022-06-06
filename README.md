@@ -22,7 +22,7 @@ crosspub content is written in
 markup language. Files should end in `.gmi`.
 
 Next, change the settings in your config.toml, see [Basic
-Configuration](##Basic-Configuration)
+Configuration](#Basic-Configuration)
 
 When you're ready to generate your website just navigate to the directory you
 initialized and run
