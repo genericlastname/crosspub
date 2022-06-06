@@ -95,6 +95,10 @@ impl CrossPub {
             cp.load_dir(PathBuf::from("."));
         }
 
+        if cp.posts.is_empty() {
+            println!("No posts found.");
+            exit(0);
+        }
 
         if let Some(pl) = c.homepage.post_list {
             cp.post_listing = pl;
@@ -118,6 +122,56 @@ impl CrossPub {
         }
 
         cp
+    }
+
+    fn load_dir(&mut self, path: PathBuf) {
+        match read_dir(&path) {
+            Ok(d) => d,
+            Err(_) => {
+                eprintln!("Error: Given path is not a directory.");
+                exit(1);
+            }
+        };
+        let posts_path: PathBuf = [&path.to_str().unwrap(), "posts"].iter().collect();
+        let posts_dir = match read_dir(posts_path) {
+            Ok(pd) => pd,
+            Err(_) => {
+                eprintln!("Error: No posts/ directory.");
+                exit(1);
+            }
+        };
+        let topics_path: PathBuf = [&path.to_str().unwrap(), "topics"].iter().collect();
+        let topics_dir = match read_dir(topics_path) {
+            Ok(td) => td,
+            Err(_) => {
+                eprintln!("Error: No topics/ directory.");
+                exit(1);
+            }
+        };
+        
+        for entry in posts_dir {
+            let entry = entry.unwrap();
+            let p = entry.path();
+            if p.extension() != Some(std::ffi::OsStr::new("gmi")) {
+                continue;
+            }
+
+            let post = Post::from_source(entry.path());
+            self.posts.push(post);
+        }
+        self.posts.sort_by(|a, b| b.date.partial_cmp(&a.date).unwrap());
+
+        for entry in topics_dir {
+            let entry = entry.unwrap();
+            let t = entry.path();
+            if t.extension() != Some(std::ffi::OsStr::new("gmi")) {
+                continue;
+            }
+
+            let topic = Topic::from_source(entry.path());
+            self.topics.push(topic);
+        }
+        self.topics.sort_by(|a, b| a.title.partial_cmp(&b.title).unwrap());
     }
 
     pub fn write(&self) {
@@ -969,56 +1023,6 @@ impl CrossPub {
                 }
             }
         }
-    }
-
-    fn load_dir(&mut self, path: PathBuf) {
-        match read_dir(&path) {
-            Ok(d) => d,
-            Err(_) => {
-                eprintln!("Error: Given path is not a directory.");
-                exit(1);
-            }
-        };
-        let posts_path: PathBuf = [&path.to_str().unwrap(), "posts"].iter().collect();
-        let posts_dir = match read_dir(posts_path) {
-            Ok(pd) => pd,
-            Err(_) => {
-                eprintln!("Error: No posts/ directory.");
-                exit(1);
-            }
-        };
-        let topics_path: PathBuf = [&path.to_str().unwrap(), "topics"].iter().collect();
-        let topics_dir = match read_dir(topics_path) {
-            Ok(td) => td,
-            Err(_) => {
-                eprintln!("Error: No topics/ directory.");
-                exit(1);
-            }
-        };
-        
-        for entry in posts_dir {
-            let entry = entry.unwrap();
-            let p = entry.path();
-            if p.extension() != Some(std::ffi::OsStr::new("gmi")) {
-                continue;
-            }
-
-            let post = Post::from_source(entry.path());
-            self.posts.push(post);
-        }
-        self.posts.sort_by(|a, b| b.date.partial_cmp(&a.date).unwrap());
-
-        for entry in topics_dir {
-            let entry = entry.unwrap();
-            let t = entry.path();
-            if t.extension() != Some(std::ffi::OsStr::new("gmi")) {
-                continue;
-            }
-
-            let topic = Topic::from_source(entry.path());
-            self.topics.push(topic);
-        }
-        self.topics.sort_by(|a, b| a.title.partial_cmp(&b.title).unwrap());
     }
 }
 

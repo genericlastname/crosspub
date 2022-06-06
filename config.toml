@@ -1,16 +1,16 @@
 [site]
 # The name of your site which gets used in tab titles and the header.
-name = "hiroantag's web living room"
+name = "Example Site"
 
 # The base url of yor site.
-url = "retrace.club/"
+url = "example.com/"
 
 # Your tilde extension (without the ~ character)
-username = "hiroantag"
+username = "user"
 
 # The directories containing your HTML and Gemini roots
-html_root = "/home/hiroantag/public_html"
-gemini_root = "/home/hiroantag/public_gemini"
+html_root = "/home/user/public_html"
+gemini_root = "/home/user/public_gemini"
 
 [homepage]
 # If true crosspub will look in ~/.local/share/crosspub (or whatever your

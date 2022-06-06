@@ -11,6 +11,7 @@ use std::process::exit;
 use std::path::PathBuf;
 
 use clap::Parser;
+use xdg;
 
 use crosspub::{Args, CrossPub};
 
@@ -19,6 +20,20 @@ fn main() {
 
     // Initialize directory structure then quit.
     if args.init {
+        let xdg_dir = xdg::BaseDirectories::with_prefix("crosspub").unwrap();
+        let config_path: PathBuf = [
+            xdg_dir.get_config_home(),
+            PathBuf::from("config.toml")
+        ].iter().collect();
+        match fs::copy(
+            "/usr/share/crosspub/config.toml",
+            config_path) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not copy default config");
+                exit(1);
+            }
+        }
         match fs::create_dir("./posts") {
             Ok(_) => {},
             Err(_) => {
@@ -33,7 +48,10 @@ fn main() {
                 exit(1);
             }
         }
-        println!("Initialized crosspub directories.\n\n\
+        match fs::create_dir("~/.config/crosspub") {
+            _ => {}
+        }
+        println!("Initialized crosspub directories and created config.\n\n\
             Blogs/articles go in posts/\n\
             Wikis/digital gardens go in topics/");
         exit(0);
