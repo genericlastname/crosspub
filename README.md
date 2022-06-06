@@ -30,7 +30,15 @@ crosspub content is written in
 markup language. Files should end in `.gmi`.
 
 Next, change the settings in your config.toml, see [Basic
-Configuration](#Basic-Configuration)
+Configuration](#Basic-Configuration).
+
+Create posts directories in your HTML and Gemini root directories
+```
+mkdir ~/public_html/posts
+mkdir ~/public_gemini/posts
+```
+
+Change these paths to match your configuration.
 
 When you're ready to generate your website just navigate to the directory you
 initialized and run
