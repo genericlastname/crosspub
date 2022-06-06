@@ -3,6 +3,14 @@
 A tool for users on tilde servers to cross publish blog posts to HTML and
 Gemini.
 
+## Installation
+
+Run
+```
+make
+sudo make install
+```
+
 ## Usage
 
 crosspub is designed to not need any configuration out of the box. To start
@@ -117,7 +125,7 @@ Some or all of these templates can be shadowed by ones located in
 ### Custom CSS
 
 Similar to the templates, site-wide CSS can be modified. User CSS should go in
-~/.local/share/crosspub/templates/html/style.css
+`~/.local/share/crosspub/templates/html/style.css`
 
 ### Post Listing
 
