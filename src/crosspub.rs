@@ -7,14 +7,14 @@ use std::process::exit;
 
 use clap::Parser;
 use chrono::NaiveDate;
-use serde::Serialize;
 use serde_json::Value;
 use tinytemplate::TinyTemplate;
 
 use crate::about::About;
+use crate::contexts::*;
 use crate::post::Post;
 use crate::topic::Topic;
-use crate::config::{Config, Site};
+use crate::config::Config;
 
 #[derive(Clone, Default, Parser)]
 #[clap(author = "hiroantag", version, about)]
@@ -31,38 +31,6 @@ pub struct Args {
     /// Initialize a directory for crosspub
     #[clap(long)]
     pub init: bool,
-}
-
-// Contexts for template generation.
-#[derive(Serialize)]
-struct PostContext {
-    site: Site,
-    post: Post,
-    has_about: bool,
-}
-
-#[derive(Serialize)]
-struct TopicContext {
-    site: Site,
-    topic: Topic,
-    has_about: bool,
-}
-
-#[derive(Serialize)]
-struct IndexContext {
-    site: Site,
-    posts: Vec<Post>,
-    latest_post: Post,
-    topics: Vec<Topic>,
-    has_topics: bool,
-    has_about: bool,
-}
-
-#[derive(Serialize)]
-struct AboutContext {
-    site: Site,
-    about: About,
-    has_about: bool,
 }
 
 pub struct CrossPub {

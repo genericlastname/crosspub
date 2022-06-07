@@ -1,6 +1,7 @@
 pub mod about;
-pub mod crosspub;
 pub mod config;
+pub mod contexts;
+pub mod crosspub;
 pub mod frontmatter;
 pub mod gemtext;
 pub mod post;
