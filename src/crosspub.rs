@@ -24,7 +24,7 @@ pub struct Args {
     #[clap(short, long, parse(from_os_str))]
     pub config: Option<std::path::PathBuf>,
 
-    /// Path to directory with crosspub files
+    /// Path to directory with crosspub files. Defaults to PWD.
     #[clap(parse(from_os_str))]
     pub dir: Option<std::path::PathBuf>,
 
