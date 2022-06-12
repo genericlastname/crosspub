@@ -5,7 +5,7 @@ build:
 
 install: target/release/crosspub
 	cp target/release/crosspub /usr/local/bin
-	mkdir /usr/share/crosspub
+	mkdir -p /usr/share/crosspub
 	cp -r templates /usr/share/crosspub/templates
 
 uninstall:
