@@ -1,21 +1,15 @@
-{site.name}
+# {site.name}
 
 ## Navigation
-
 => gemini://{site.url}/~{site.username} Home
-{{ if has_about }}
-=> gemini://{site.url}/~{site.username}/about.gmi About
-{{ endif }}
+{{ if has_about }}=> /~{site.username}/about.gmi About{{ endif }}
 
 ## Posts
 
-{{ for post in posts }}
-=> gemini://{site.url}/~{site.username}/posts/{post.filename}.gmi {post.title}
-{{ endfor }}
-
+{{ for post in posts }}=> /~{site.username}/posts/{post.filename}.gmi {post.title}{{ endfor }}
 {{ if has_topics }}
 ## Topics
 {{ for topic in topics }}
-=> gemini://{site.url}/~{site.username}/{topic.filename}.gmi {topic.title}
+=> /~{site.username}/{topic.filename}.gmi {topic.title}
 {{ endfor }}
 {{ endif }}

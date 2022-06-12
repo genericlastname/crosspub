@@ -1,10 +1,5 @@
-{site.name}
-
-## Navigation
-=> gemini://{site.url}/~{site.username} Home
-=> gemini://{site.url}/~{site.username}/about.gmi About
-
-## {post.title}
+# {post.title}
 {post.date | long_date_formatter}
-
 {post.gemini_content}
+
+=> /~{site.username} Home

@@ -203,14 +203,12 @@ impl CrossPub {
             }
         }
 
-        let has_topics = !self.topics.is_empty();
-
         let context = IndexContext {
             site: self.config.site.clone(),
             latest_post: self.posts[0].clone(),
             posts: self.posts.clone(),
             topics: self.topics.clone(),
-            has_topics,
+            has_topics: !self.topics.is_empty(),
             has_about: self.has_about,
         };
 

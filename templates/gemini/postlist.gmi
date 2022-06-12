@@ -1,11 +1,8 @@
-{site.name}
+# {site.name}
 
 ## Navigation
-
 => gemini://{site.url}/~{site.username} Home
-{{ if has_about }}
-=> gemini://{site.url}/~{site.username}/about.gmi About
-{{ endif }}
+{{ if has_about }}=> gemini://{site.url}/~{site.username}/about.gmi About{{ endif }}
 
 ## Posts
 

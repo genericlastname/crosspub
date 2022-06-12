@@ -4,22 +4,14 @@
 </head>
 <body>
 <main>
-<div id="header">
-<p>{site.name}</p>
-<nav>
-<h2>Navigation</h2>
-<ul>
-<li><a href="/~{site.username}">Home</a></li>
-{{ if has_about }}
-<li><a href="/~{site.username}/about.html">About</a></li>
-{{ endif }}
-</ul>
 </nav>
 </div>
-<hr>
 <div id="content">
-<h2>{topic.title}</h2>
+<h1>{topic.title}</h1>
 {topic.html_content}
+</div>
+<div>
+<a href="/~{site.username}">→ home</a>
 </div>
 </main>
 </body>
