@@ -38,7 +38,7 @@ impl GemtextToken {
                 }
             },
             TokenKind::Blockquote => {
-                format!("<blockquote>{}</blockquote>\n", self.data)
+                format!("<blockquote><p>{}</p></blockquote>\n", self.data)
             },
             TokenKind::PreFormattedText => {
                 format!("<pre>{}</pre>\n", self.data)

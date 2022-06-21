@@ -24,6 +24,13 @@ a:hover {
   color: blue;
 }
 
+blockquote {
+  background: #dfdfdf;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #151515;
@@ -42,6 +49,11 @@ a:hover {
   a:hover {
     background-color: #151515;
     color: #4b749d;
+  }
+
+  blockquote {
+    background: #1c394e;
+    border-left-color: #bfbfbf
   }
 }
 
