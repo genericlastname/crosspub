@@ -3,7 +3,7 @@
 
 <title>{site.name}</title>
 <link href="gemini://{site.url}/~{site.username}/" />
-<updated>{latest_date | rfc_3339_formatter}</updated>
+<updated>{latest_post.date | rfc_3339_formatter}</updated>
 <author>
 <name>{site.username}</name>
 </author>

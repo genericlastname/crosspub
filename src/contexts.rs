@@ -35,3 +35,16 @@ pub struct AboutContext {
     pub about: About,
     pub has_about: bool,
 }
+
+#[derive(Serialize)]
+pub struct AtomFeedContext {
+    pub site: Site,
+    pub latest_post: Post,
+    pub entries: Vec<AtomEntryContext>,
+}
+
+#[derive(Serialize)]
+pub struct AtomEntryContext {
+    pub site: Site,
+    pub posts: Vec<Post>,
+}
