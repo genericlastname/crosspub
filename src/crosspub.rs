@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use clap::Parser;
-use chrono::NaiveDate;
+use chrono::{DateTime, NaiveDate, Utc};
 use serde_json::Value;
 use tinytemplate::TinyTemplate;
 
@@ -149,6 +149,7 @@ impl CrossPub {
         self.write_gemini_topics();
         self.generate_index_html();
         self.generate_index_gmi();
+        self.generate_gemini_atom_feed();
         self.copy_css();
 
         if self.has_about {
@@ -579,6 +580,7 @@ impl CrossPub {
 
         let mut tt = TinyTemplate::new();
         tt.set_default_formatter(&tinytemplate::format_unescaped);
+        tt.add_formatter("rfc_3339_formatter", rfc_3339_formatter);
         match tt.add_template("feed", &feed_template_buffer) {
             Ok(_) => {},
             Err(_) => {
@@ -594,6 +596,51 @@ impl CrossPub {
             }
         }
 
+        // Generate all entry listings and add to a vector which is used in an AtomFeedContext.
+        let mut entries: Vec<String> = Vec::new();
+        for post in &self.posts {
+            let entry_context = AtomEntryContext {
+                site: self.config.site.clone(),
+                post: post.clone(),
+            };
+            entries.push(tt.render("entry", &entry_context).unwrap());
+        }
+
+        // Generate feed.
+        let feed_context = AtomFeedContext {
+            site: self.config.site.clone(),
+            latest_post: self.posts[0].clone(),
+            entries: entries,
+        };
+        let rendered_feed = tt.render("feed", &feed_context).unwrap();
+
+        println!("Writing gemini Atom feed");
+
+        let feed_path: PathBuf = [
+            &self.config.site.gemini_root,
+            "index.xml",
+        ].iter().collect();
+
+        let output = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&feed_path);
+        let mut output = match output {
+            Ok(o) => o,
+            Err(_) => {
+                eprintln!("Error: Could not open {} for writing", &feed_path.to_string_lossy());
+                exit(1);
+            }
+        };
+
+        match output.write_all(rendered_feed.as_bytes()) {
+            Ok(_) => {}
+            Err(_) => {
+                eprintln!("Error: Could not write to {}", &feed_path.to_string_lossy());
+                exit(1);
+            }
+        }
     }
 
     fn generate_about_html(&self) {
@@ -1086,6 +1133,33 @@ fn long_date_formatter(value: &Value, output: &mut String) -> tinytemplate::erro
                 }
             };
             write!(output, "{}", date.format("%B %e, %Y"))?;
+            Ok(())
+        }
+        _ => Err(tinytemplate::error::Error::GenericError {
+            msg: "Incorrect date".to_string(),
+        }),
+    }
+}
+
+fn rfc_3339_formatter(value: &Value, output: &mut String) -> tinytemplate::error::Result<()> {
+    match value {
+        Value::Null => Ok(()),
+        Value::String(s) => {
+            let naive_d = NaiveDate::parse_from_str(&s, "%Y-%m-%d");
+            let naive_d = match naive_d {
+                Ok(d) => d,
+                Err(_) => {
+                    eprintln!(r#"
+                Error: Date formatted incorrectly in TOML header
+                Try:
+                    date = "YYYY-MM-DD"
+                Error occurred when generating Atom feed
+                "#);
+                    exit(1);
+                }
+            };
+            let dt = DateTime::<Utc>::from_utc(naive_d.and_hms(12, 0, 0), Utc);
+            write!(output, "{}", dt.to_rfc3339())?;
             Ok(())
         }
         _ => Err(tinytemplate::error::Error::GenericError {

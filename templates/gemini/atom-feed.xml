@@ -9,7 +9,7 @@
 </author>
 <id>gemini://{site.url}/~{site.username}/</id>
 
-{{ for entry in entries }}
+{{ for entry in entries -}}
 {entry}
 {{endfor}}
 
