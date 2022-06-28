@@ -519,6 +519,83 @@ impl CrossPub {
         }
     }
 
+    fn generate_gemini_atom_feed(&self) {
+        let feed_template_file;
+        let entry_template_file;
+        let feed_template_path = self.xdg_dirs.find_data_file("templates/gemini/atom-feed.xml");
+        let feed_template_path = match feed_template_path {
+            Some(p) => p,
+            _ => {
+                eprintln!("Error: Could not find Gemini Atom feed template.");
+                exit(1);
+            }
+        };
+        let entry_template_path = self.xdg_dirs.find_data_file("templates/gemini/atom-entry.xml");
+        let entry_template_path = match entry_template_path {
+            Some(p) => p,
+            _ => {
+                eprintln!("Error: Could not find Gemini Atom entry template.");
+                exit(1);
+            }
+        };
+
+        feed_template_file = OpenOptions::new()
+            .read(true)
+            .open(feed_template_path);
+        let mut feed_template_file = match feed_template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open Gemini Atom feed template");
+                exit(1);
+            }
+        };
+        entry_template_file = OpenOptions::new()
+            .read(true)
+            .open(entry_template_path);
+        let mut entry_template_file = match entry_template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open Gemini Atom entry template");
+                exit(1);
+            }
+        };
+
+        let mut feed_template_buffer = String::new();
+        match feed_template_file.read_to_string(&mut feed_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from Gemini Atom feed template");
+                exit(1);
+            }
+        }
+        let mut entry_template_buffer = String::new();
+        match entry_template_file.read_to_string(&mut entry_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from Gemini Atom entry template");
+                exit(1);
+            }
+        }
+
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        match tt.add_template("feed", &feed_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error could not parse gemini feed template file");
+                exit(1);
+            }
+        }
+        match tt.add_template("entry", &entry_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error could not parse gemini entry template file");
+                exit(1);
+            }
+        }
+
+    }
+
     fn generate_about_html(&self) {
         let about_template_path = match self.xdg_dirs.find_data_file("templates/html/about.html") {
             Some(t) => t,
