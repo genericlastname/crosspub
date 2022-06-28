@@ -149,8 +149,9 @@ impl CrossPub {
         self.write_gemini_topics();
         self.generate_index_html();
         self.generate_index_gmi();
-        self.generate_gemini_atom_feed();
         self.copy_css();
+        self.generate_html_atom_feed();
+        self.generate_gemini_atom_feed();
 
         if self.has_about {
             self.generate_about_html();
@@ -515,129 +516,6 @@ impl CrossPub {
             Ok(_) => {},
             Err(_) => {
                 eprintln!("Error: Could not copy CSS file");
-                exit(1);
-            }
-        }
-    }
-
-    fn generate_gemini_atom_feed(&self) {
-        let feed_template_file;
-        let entry_template_file;
-        let feed_template_path = self.xdg_dirs.find_data_file("templates/gemini/atom-feed.xml");
-        let feed_template_path = match feed_template_path {
-            Some(p) => p,
-            _ => {
-                eprintln!("Error: Could not find Gemini Atom feed template.");
-                exit(1);
-            }
-        };
-        let entry_template_path = self.xdg_dirs.find_data_file("templates/gemini/atom-entry.xml");
-        let entry_template_path = match entry_template_path {
-            Some(p) => p,
-            _ => {
-                eprintln!("Error: Could not find Gemini Atom entry template.");
-                exit(1);
-            }
-        };
-
-        feed_template_file = OpenOptions::new()
-            .read(true)
-            .open(feed_template_path);
-        let mut feed_template_file = match feed_template_file {
-            Ok(t) => t,
-            Err(_) => {
-                eprintln!("Error: Could not open Gemini Atom feed template");
-                exit(1);
-            }
-        };
-        entry_template_file = OpenOptions::new()
-            .read(true)
-            .open(entry_template_path);
-        let mut entry_template_file = match entry_template_file {
-            Ok(t) => t,
-            Err(_) => {
-                eprintln!("Error: Could not open Gemini Atom entry template");
-                exit(1);
-            }
-        };
-
-        let mut feed_template_buffer = String::new();
-        match feed_template_file.read_to_string(&mut feed_template_buffer) {
-            Ok(_) => {},
-            Err(_) => {
-                eprintln!("Error: Could not read from Gemini Atom feed template");
-                exit(1);
-            }
-        }
-        let mut entry_template_buffer = String::new();
-        match entry_template_file.read_to_string(&mut entry_template_buffer) {
-            Ok(_) => {},
-            Err(_) => {
-                eprintln!("Error: Could not read from Gemini Atom entry template");
-                exit(1);
-            }
-        }
-
-        let mut tt = TinyTemplate::new();
-        tt.set_default_formatter(&tinytemplate::format_unescaped);
-        tt.add_formatter("rfc_3339_formatter", rfc_3339_formatter);
-        match tt.add_template("feed", &feed_template_buffer) {
-            Ok(_) => {},
-            Err(_) => {
-                eprintln!("Error could not parse gemini feed template file");
-                exit(1);
-            }
-        }
-        match tt.add_template("entry", &entry_template_buffer) {
-            Ok(_) => {},
-            Err(_) => {
-                eprintln!("Error could not parse gemini entry template file");
-                exit(1);
-            }
-        }
-
-        // Generate all entry listings and add to a vector which is used in an AtomFeedContext.
-        let mut entries: Vec<String> = Vec::new();
-        for post in &self.posts {
-            let entry_context = AtomEntryContext {
-                site: self.config.site.clone(),
-                post: post.clone(),
-            };
-            entries.push(tt.render("entry", &entry_context).unwrap());
-        }
-
-        // Generate feed.
-        let feed_context = AtomFeedContext {
-            site: self.config.site.clone(),
-            latest_post: self.posts[0].clone(),
-            entries: entries,
-        };
-        let rendered_feed = tt.render("feed", &feed_context).unwrap();
-
-        println!("Writing gemini Atom feed");
-
-        let feed_path: PathBuf = [
-            &self.config.site.gemini_root,
-            "index.xml",
-        ].iter().collect();
-
-        let output = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(&feed_path);
-        let mut output = match output {
-            Ok(o) => o,
-            Err(_) => {
-                eprintln!("Error: Could not open {} for writing", &feed_path.to_string_lossy());
-                exit(1);
-            }
-        };
-
-        match output.write_all(rendered_feed.as_bytes()) {
-            Ok(_) => {}
-            Err(_) => {
-                eprintln!("Error: Could not write to {}", &feed_path.to_string_lossy());
                 exit(1);
             }
         }
@@ -1111,6 +989,252 @@ impl CrossPub {
                     eprintln!("Error: Could not write to {}", topic_path.to_str().unwrap());
                     exit(1)
                 }
+            }
+        }
+    }
+
+    fn generate_gemini_atom_feed(&self) {
+        let feed_template_file;
+        let entry_template_file;
+        let feed_template_path = self.xdg_dirs.find_data_file("templates/gemini/atom-feed.xml");
+        let feed_template_path = match feed_template_path {
+            Some(p) => p,
+            _ => {
+                eprintln!("Error: Could not find Gemini Atom feed template.");
+                exit(1);
+            }
+        };
+        let entry_template_path = self.xdg_dirs.find_data_file("templates/gemini/atom-entry.xml");
+        let entry_template_path = match entry_template_path {
+            Some(p) => p,
+            _ => {
+                eprintln!("Error: Could not find Gemini Atom entry template.");
+                exit(1);
+            }
+        };
+
+        feed_template_file = OpenOptions::new()
+            .read(true)
+            .open(feed_template_path);
+        let mut feed_template_file = match feed_template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open Gemini Atom feed template");
+                exit(1);
+            }
+        };
+        entry_template_file = OpenOptions::new()
+            .read(true)
+            .open(entry_template_path);
+        let mut entry_template_file = match entry_template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open Gemini Atom entry template");
+                exit(1);
+            }
+        };
+
+        let mut feed_template_buffer = String::new();
+        match feed_template_file.read_to_string(&mut feed_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from Gemini Atom feed template");
+                exit(1);
+            }
+        }
+        let mut entry_template_buffer = String::new();
+        match entry_template_file.read_to_string(&mut entry_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from Gemini Atom entry template");
+                exit(1);
+            }
+        }
+
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        tt.add_formatter("rfc_3339_formatter", rfc_3339_formatter);
+        match tt.add_template("feed", &feed_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error could not parse gemini feed template file");
+                exit(1);
+            }
+        }
+        match tt.add_template("entry", &entry_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error could not parse gemini entry template file");
+                exit(1);
+            }
+        }
+
+        // Generate all entry listings and add to a vector which is used in an AtomFeedContext.
+        let mut entries: Vec<String> = Vec::new();
+        for post in &self.posts {
+            let entry_context = AtomEntryContext {
+                site: self.config.site.clone(),
+                post: post.clone(),
+            };
+            entries.push(tt.render("entry", &entry_context).unwrap());
+        }
+
+        // Generate feed.
+        let feed_context = AtomFeedContext {
+            site: self.config.site.clone(),
+            latest_post: self.posts[0].clone(),
+            entries: entries,
+        };
+        let rendered_feed = tt.render("feed", &feed_context).unwrap();
+
+        println!("Writing gemini Atom feed");
+
+        let feed_path: PathBuf = [
+            &self.config.site.gemini_root,
+            "index.xml",
+        ].iter().collect();
+
+        let output = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&feed_path);
+        let mut output = match output {
+            Ok(o) => o,
+            Err(_) => {
+                eprintln!("Error: Could not open {} for writing", &feed_path.to_string_lossy());
+                exit(1);
+            }
+        };
+
+        match output.write_all(rendered_feed.as_bytes()) {
+            Ok(_) => {}
+            Err(_) => {
+                eprintln!("Error: Could not write to {}", &feed_path.to_string_lossy());
+                exit(1);
+            }
+        }
+    }
+
+    fn generate_html_atom_feed(&self) {
+        let feed_template_file;
+        let entry_template_file;
+        let feed_template_path = self.xdg_dirs.find_data_file("templates/html/atom-feed.xml");
+        let feed_template_path = match feed_template_path {
+            Some(p) => p,
+            _ => {
+                eprintln!("Error: Could not find HTML Atom feed template.");
+                exit(1);
+            }
+        };
+        let entry_template_path = self.xdg_dirs.find_data_file("templates/html/atom-entry.xml");
+        let entry_template_path = match entry_template_path {
+            Some(p) => p,
+            _ => {
+                eprintln!("Error: Could not find HTML Atom entry template.");
+                exit(1);
+            }
+        };
+
+        feed_template_file = OpenOptions::new()
+            .read(true)
+            .open(feed_template_path);
+        let mut feed_template_file = match feed_template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open HTML Atom feed template");
+                exit(1);
+            }
+        };
+        entry_template_file = OpenOptions::new()
+            .read(true)
+            .open(entry_template_path);
+        let mut entry_template_file = match entry_template_file {
+            Ok(t) => t,
+            Err(_) => {
+                eprintln!("Error: Could not open HTML Atom entry template");
+                exit(1);
+            }
+        };
+
+        let mut feed_template_buffer = String::new();
+        match feed_template_file.read_to_string(&mut feed_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read HTML Gemini Atom feed template");
+                exit(1);
+            }
+        }
+        let mut entry_template_buffer = String::new();
+        match entry_template_file.read_to_string(&mut entry_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error: Could not read from HTML Atom entry template");
+                exit(1);
+            }
+        }
+
+        let mut tt = TinyTemplate::new();
+        tt.set_default_formatter(&tinytemplate::format_unescaped);
+        tt.add_formatter("rfc_3339_formatter", rfc_3339_formatter);
+        match tt.add_template("feed", &feed_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error could not parse HTML feed template file");
+                exit(1);
+            }
+        }
+        match tt.add_template("entry", &entry_template_buffer) {
+            Ok(_) => {},
+            Err(_) => {
+                eprintln!("Error could not parse HTML entry template file");
+                exit(1);
+            }
+        }
+
+        // Generate all entry listings and add to a vector which is used in an AtomFeedContext.
+        let mut entries: Vec<String> = Vec::new();
+        for post in &self.posts {
+            let entry_context = AtomEntryContext {
+                site: self.config.site.clone(),
+                post: post.clone(),
+            };
+            entries.push(tt.render("entry", &entry_context).unwrap());
+        }
+
+        // Generate feed.
+        let feed_context = AtomFeedContext {
+            site: self.config.site.clone(),
+            latest_post: self.posts[0].clone(),
+            entries: entries,
+        };
+        let rendered_feed = tt.render("feed", &feed_context).unwrap();
+
+        println!("Writing HTML Atom feed");
+
+        let feed_path: PathBuf = [
+            &self.config.site.html_root,
+            "index.xml",
+        ].iter().collect();
+
+        let output = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&feed_path);
+        let mut output = match output {
+            Ok(o) => o,
+            Err(_) => {
+                eprintln!("Error: Could not open {} for writing", &feed_path.to_string_lossy());
+                exit(1);
+            }
+        };
+
+        match output.write_all(rendered_feed.as_bytes()) {
+            Ok(_) => {}
+            Err(_) => {
+                eprintln!("Error: Could not write to {}", &feed_path.to_string_lossy());
+                exit(1);
             }
         }
     }

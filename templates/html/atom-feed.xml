@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+<title>{site.name}</title>
+<link href="http://{site.url}/~{site.username}/" />
+<updated>{latest_post.date | rfc_3339_formatter}</updated>
+<author>
+<name>{site.username}</name>
+</author>
+<id>http://{site.url}/~{site.username}/</id>
+
+{{ for entry in entries -}}
+{entry}
+{{endfor}}
+
+</feed>
