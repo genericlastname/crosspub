@@ -1,6 +1,6 @@
 <entry>
 <title>{post.title}</title>
-<link rel="alternate" href="http://{site.url}/{site.username}/posts/{post.filename}.gmi" />
-<id>http://{site.url}/{site.username}/posts/{post.filename}.gmi</id>
+<link rel="alternate" href="http://{site.url}/~{site.username}/posts/{post.filename}.html" />
+<id>http://{site.url}/~{site.username}/posts/{post.filename}.html</id>
 <published>{post.date | rfc_3339_formatter}</published>
 </entry>

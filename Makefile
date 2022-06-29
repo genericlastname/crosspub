@@ -4,10 +4,9 @@ build:
 	cargo build --release
 
 install: target/release/crosspub
-	rm -r /usr/share/crosspub/*
 	cp target/release/crosspub /usr/local/bin
 	mkdir -p /usr/share/crosspub
-	cp -r templates /usr/share/crosspub/templates
+	cp -r templates /usr/share/crosspub/
 
 uninstall:
 	rm /usr/local/bin/crosspub

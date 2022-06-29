@@ -1,6 +1,6 @@
 <entry>
 <title>{post.title}</title>
-<link rel="alternate" href="gemini://{site.url}/{site.username}/posts/{post.filename}.gmi" />
-<id>gemini://{site.url}/{site.username}/posts/{post.filename}.gmi</id>
+<link rel="alternate" href="gemini://{site.url}/~{site.username}/posts/{post.filename}.gmi" />
+<id>gemini://{site.url}/~{site.username}/posts/{post.filename}.gmi</id>
 <published>{post.date | rfc_3339_formatter}</published>
 </entry>
