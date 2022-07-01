@@ -3,7 +3,7 @@ use std::fs::OpenOptions;
 use std::path::PathBuf;
 use std::process::exit;
 
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::Serialize;
 use toml;
 
@@ -15,17 +15,17 @@ pub struct Post {
     pub title: String,
     pub filename: String,
     #[serde(with = "cp_date_format")]
-    pub date: NaiveDate,
+    pub date: NaiveDateTime,
     pub html_content: String,
     pub gemini_content: String,
 }
 
 mod cp_date_format {
-    use chrono::NaiveDate;
+    use chrono::NaiveDateTime;
     use serde::{self, Serializer};
 
     pub fn serialize<S>(
-        date: &NaiveDate,
+        date: &NaiveDateTime,
         serializer: S,
     ) -> Result<S::Ok, S::Error>
     where
@@ -41,7 +41,7 @@ impl Default for Post {
         Post {
             title: String::new(),
             filename: String::new(),
-            date: NaiveDate::parse_from_str("1970-01-01", "%Y-%m-%d").unwrap(),
+            date: NaiveDate::from_ymd(1980, 1, 1).and_hms(0, 0, 0),
             html_content: String::new(),
             gemini_content: String::new(),
         }
@@ -74,14 +74,32 @@ impl Post {
 
         let mut post = Post::default();
         post.title = frontmatter.title;
-        post.date = match NaiveDate::parse_from_str(&frontmatter.date, "%Y-%m-%d") {
-            Ok(p) => p,
-            Err(_) => {
-                eprintln!("Error: Date formatted incorrectly in {}",
-                    &source_path.to_string_lossy());
-                exit(1);
-            }
-        };
+        if frontmatter.date.len() == 10 {
+            // let temp_date = NaiveDate::parse_from_str(&)
+            post.date = match NaiveDate::parse_from_str(&frontmatter.date, "%Y-%m-%d") {
+                Ok(t) => {
+                    t.and_hms(0, 0, 0)
+                },
+                Err(_) => {
+                    eprintln!("Error: Date formatted incorrectly in {}",
+                        &source_path.to_string_lossy());
+                    exit(1);
+                }
+            };
+        } else if frontmatter.date.len() > 10 {
+            post.date = match NaiveDateTime::parse_from_str(&frontmatter.date, "%Y-%m-%d %H:%M") {
+                Ok(p) => p,
+                Err(_) => {
+                    eprintln!("Error: Date and time formatted incorrectly in {}",
+                        &source_path.to_string_lossy());
+                    exit(1);
+                }
+            };
+        } else {
+            eprintln!("Error: Date too short in {}",
+                &source_path.to_string_lossy());
+            exit(1);
+        }
         post.filename = format!("{}_{}", post.date.format("%Y%m%d"), frontmatter.slug);
 
         // Generate content bodies for HTML and Gemini.

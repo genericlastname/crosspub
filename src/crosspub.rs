@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use clap::Parser;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use serde_json::Value;
 use tinytemplate::TinyTemplate;
 
@@ -1282,7 +1282,7 @@ fn rfc_3339_formatter(value: &Value, output: &mut String) -> tinytemplate::error
                     exit(1);
                 }
             };
-            let dt = DateTime::<Utc>::from_utc(naive_d.and_hms(12, 0, 0), Utc);
+            let dt = DateTime::<Utc>::from_utc(naive_d.and_hms(0, 0, 0), Utc);
             write!(output, "{}", dt.to_rfc3339())?;
             Ok(())
         }
