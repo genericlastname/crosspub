@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use clap::Parser;
-use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use serde_json::Value;
 use tinytemplate::TinyTemplate;
 
