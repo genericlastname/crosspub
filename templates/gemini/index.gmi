@@ -13,3 +13,5 @@
 => /~{site.username}/{topic.filename}.gmi {topic.title}
 {{ endfor }}
 {{ endif }}
+
+=> https://github.com/genericlastname/crosspub Published with crosspub
