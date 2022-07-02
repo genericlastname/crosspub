@@ -6,7 +6,12 @@ use std::path::PathBuf;
 use std::process::exit;
 
 use clap::Parser;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{
+    DateTime,
+    offset::{Local, TimeZone},
+    NaiveDate,
+    NaiveDateTime,
+};
 use serde_json::Value;
 use tinytemplate::TinyTemplate;
 
@@ -1269,23 +1274,34 @@ fn rfc_3339_formatter(value: &Value, output: &mut String) -> tinytemplate::error
     match value {
         Value::Null => Ok(()),
         Value::String(s) => {
-            let naive_d = NaiveDate::parse_from_str(&s, "%Y-%m-%d");
-            let naive_d = match naive_d {
-                Ok(d) => d,
-                Err(_) => {
-                    eprintln!(r#"
-                Error: Date formatted incorrectly in TOML header
-                Try:
-                    date = "YYYY-MM-DD"
-                Error occurred when generating Atom feed
-                "#);
-                    exit(1);
+            let naive_dt: NaiveDateTime;
+            if s.len() == 10 {
+                naive_dt = match NaiveDate::parse_from_str(&s, "%Y-%m-%d") {
+                    Ok(t) => {
+                        t.and_hms(0, 0, 0)
+                    },
+                    Err(_) => {
+                        eprintln!("Error: Date formatted incorrctly. Unable to format for Atom feed.");
+                        exit(1);
+                    }
                 }
-            };
-            let dt = DateTime::<Utc>::from_utc(naive_d.and_hms(0, 0, 0), Utc);
+            } else if s.len() > 10 {
+                naive_dt = match NaiveDateTime::parse_from_str(&s, "%Y-%m-%d %H:%M") {
+                    Ok(p) => p,
+                    Err(_) => {
+                        eprintln!("Error: Date and time formatted incorrectly. Unable to format for Atom feed");
+                        exit(1);
+                    }
+                };
+            } else {
+                eprintln!("Error: Date too short");
+                exit(1);
+            }
+
+            let dt: DateTime<Local> = Local.from_local_datetime(&naive_dt).unwrap();
             write!(output, "{}", dt.to_rfc3339())?;
             Ok(())
-        }
+        },
         _ => Err(tinytemplate::error::Error::GenericError {
             msg: "Incorrect date".to_string(),
         }),
