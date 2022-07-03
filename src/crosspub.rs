@@ -10,7 +10,6 @@ use chrono::{
     DateTime,
     offset::{Local, TimeZone},
     NaiveDate,
-    NaiveDateTime,
 };
 use serde_json::Value;
 use tinytemplate::TinyTemplate;
@@ -1058,7 +1057,6 @@ impl CrossPub {
 
         let mut tt = TinyTemplate::new();
         tt.set_default_formatter(&tinytemplate::format_unescaped);
-        tt.add_formatter("rfc_3339_formatter", rfc_3339_formatter);
         match tt.add_template("feed", &feed_template_buffer) {
             Ok(_) => {},
             Err(_) => {
@@ -1184,7 +1182,6 @@ impl CrossPub {
 
         let mut tt = TinyTemplate::new();
         tt.set_default_formatter(&tinytemplate::format_unescaped);
-        tt.add_formatter("rfc_3339_formatter", rfc_3339_formatter);
         match tt.add_template("feed", &feed_template_buffer) {
             Ok(_) => {},
             Err(_) => {
@@ -1270,44 +1267,6 @@ fn long_date_formatter(value: &Value, output: &mut String) -> tinytemplate::erro
             write!(output, "{}", date.format("%B %e, %Y"))?;
             Ok(())
         }
-        _ => Err(tinytemplate::error::Error::GenericError {
-            msg: "Incorrect date".to_string(),
-        }),
-    }
-}
-
-fn rfc_3339_formatter(value: &Value, output: &mut String) -> tinytemplate::error::Result<()> {
-    match value {
-        Value::Null => Ok(()),
-        Value::String(s) => {
-            let naive_dt: NaiveDateTime;
-            if s.len() == 10 {
-                naive_dt = match NaiveDate::parse_from_str(&s, "%Y-%m-%d") {
-                    Ok(t) => {
-                        t.and_hms(0, 0, 0)
-                    },
-                    Err(_) => {
-                        eprintln!("Error: Date formatted incorrctly. Unable to format for Atom feed.");
-                        exit(1);
-                    }
-                }
-            } else if s.len() > 10 {
-                naive_dt = match NaiveDateTime::parse_from_str(&s, "%Y-%m-%d %H:%M") {
-                    Ok(p) => p,
-                    Err(_) => {
-                        eprintln!("Error: Date and time formatted incorrectly. Unable to format for Atom feed");
-                        exit(1);
-                    }
-                };
-            } else {
-                eprintln!("Error: Date too short");
-                exit(1);
-            }
-
-            let dt: DateTime<Local> = Local.from_local_datetime(&naive_dt).unwrap();
-            write!(output, "{}", dt.to_rfc3339())?;
-            Ok(())
-        },
         _ => Err(tinytemplate::error::Error::GenericError {
             msg: "Incorrect date".to_string(),
         }),
