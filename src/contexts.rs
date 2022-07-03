@@ -39,7 +39,7 @@ pub struct AboutContext {
 #[derive(Serialize)]
 pub struct AtomFeedContext {
     pub site: Site,
-    pub latest_post: Post,
+    pub last_updated: String,
     pub entries: Vec<String>,
 }
 

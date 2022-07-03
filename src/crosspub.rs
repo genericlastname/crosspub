@@ -1085,9 +1085,10 @@ impl CrossPub {
         }
 
         // Generate feed.
+        let dt: DateTime<Local> = Local.from_local_datetime(&self.posts[0].date).unwrap();
         let feed_context = AtomFeedContext {
             site: self.config.site.clone(),
-            latest_post: self.posts[0].clone(),
+            last_updated: dt.to_rfc3339(),
             entries: entries,
         };
         let rendered_feed = tt.render("feed", &feed_context).unwrap();
@@ -1208,9 +1209,10 @@ impl CrossPub {
         }
 
         // Generate feed.
+        let dt: DateTime<Local> = Local.from_local_datetime(&self.posts[0].date).unwrap();
         let feed_context = AtomFeedContext {
             site: self.config.site.clone(),
-            latest_post: self.posts[0].clone(),
+            last_updated: dt.to_rfc3339(),
             entries: entries,
         };
         let rendered_feed = tt.render("feed", &feed_context).unwrap();
