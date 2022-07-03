@@ -4,9 +4,6 @@
 <title>{site.name}</title>
 <link href="gemini://{site.url}/~{site.username}/" />
 <updated>{last_updated}</updated>
-<author>
-<name>{site.username}</name>
-</author>
 <id>gemini://{site.url}/~{site.username}/</id>
 
 {{ for entry in entries -}}
