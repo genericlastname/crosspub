@@ -1077,9 +1077,11 @@ impl CrossPub {
         // Generate all entry listings and add to a vector which is used in an AtomFeedContext.
         let mut entries: Vec<String> = Vec::new();
         for post in &self.posts {
+            let dt: DateTime<Local> = Local.from_local_datetime(&post.date).unwrap();
             let entry_context = AtomEntryContext {
                 site: self.config.site.clone(),
                 post: post.clone(),
+                rfc_date: dt.to_rfc3339(),
             };
             entries.push(tt.render("entry", &entry_context).unwrap());
         }
@@ -1201,9 +1203,11 @@ impl CrossPub {
         // Generate all entry listings and add to a vector which is used in an AtomFeedContext.
         let mut entries: Vec<String> = Vec::new();
         for post in &self.posts {
+            let dt: DateTime<Local> = Local.from_local_datetime(&post.date).unwrap();
             let entry_context = AtomEntryContext {
                 site: self.config.site.clone(),
                 post: post.clone(),
+                rfc_date: dt.to_rfc3339(),
             };
             entries.push(tt.render("entry", &entry_context).unwrap());
         }

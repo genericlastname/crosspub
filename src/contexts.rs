@@ -47,4 +47,5 @@ pub struct AtomFeedContext {
 pub struct AtomEntryContext {
     pub site: Site,
     pub post: Post,
+    pub rfc_date: String,
 }
