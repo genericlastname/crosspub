@@ -5,6 +5,15 @@ Gemini.
 
 ## Installation
 
+### Cargo
+```
+cargo install crosspub
+```
+
+### Binary
+Linux binaries are available on the [Releases page](https://github.com/genericlastname/crosspub/releases)
+
+### From source
 Run
 ```
 make
