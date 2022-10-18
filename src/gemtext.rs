@@ -153,6 +153,7 @@ pub fn parse_gemtext(lines: &[String]) -> Vec<GemtextToken> {
                 });
             } else {
                 pft_block.push_str(&line);
+                pft_block.push_str("\r");
             }
         }
     }
