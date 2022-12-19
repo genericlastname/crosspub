@@ -41,7 +41,8 @@ impl GemtextToken {
                 format!("<blockquote><p>{}</p></blockquote>\n", self.data)
             },
             TokenKind::PreFormattedText => {
-                format!("<pre>{}</pre>\n", self.data)
+                println!("<pre>{}</pre>\n", self.data.replace("\n", "<br>"));
+                String::new()
             },
             TokenKind::UnorderedList => {
                 format!("<li>{}</li>\n", self.data)
@@ -62,7 +63,7 @@ impl GemtextToken {
 pub fn parse_gemtext(lines: &[String]) -> Vec<GemtextToken> {
     let mut gemtext_token_chain = Vec::new();
     let mut current_pft_state: bool = false;
-    let mut pft_block = String::new();
+    let mut pft_lines: Vec<String> = Vec::new();
     let mut _pft_alt_text: &str = "";
 
     for line in lines {
@@ -142,17 +143,16 @@ pub fn parse_gemtext(lines: &[String]) -> Vec<GemtextToken> {
             }
         } else {
             if text_tokens[0].starts_with("```") {
-                let pft_block_copy = pft_block.clone();
-                pft_block.clear();
                 current_pft_state = false;
+                let pft_joined = pft_lines.join("\n");
                 // TODO: Support PFT alt text.
                 gemtext_token_chain.push(GemtextToken {
                     kind: TokenKind::PreFormattedText,
-                    data: pft_block_copy,
+                    data: pft_joined,
                     extra: "".to_owned(),
                 });
             } else {
-                pft_block.push_str(&line);
+                pft_lines.push(line.clone());
             }
         }
     }
