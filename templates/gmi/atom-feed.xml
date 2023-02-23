@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+<title>{site.name}</title>
+<link href="gemini://{site.url}/~{site.username}/" />
+<updated>{last_updated}</updated>
+<id>gemini://{site.url}/~{site.username}/</id>
+
+{{ for entry in entries -}}
+{entry}
+{{endfor}}
+
+</feed>

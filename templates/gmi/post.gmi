@@ -1,0 +1,5 @@
+# {post.title}
+{post.date | long_date_formatter}
+{post.gemini_content}
+
+=> /~{site.username} Home

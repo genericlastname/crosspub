@@ -1,0 +1,11 @@
+# {site.name}
+
+## Navigation
+=> gemini://{site.url}/~{site.username} Home
+{{ if has_about }}=> gemini://{site.url}/~{site.username}/about.gmi About{{ endif }}
+
+## Posts
+
+{{ for post in posts }}
+=> gemini://{site.url}/~{site.username}/posts/{post.filename}.gmi {post.title}
+{{ endfor }}

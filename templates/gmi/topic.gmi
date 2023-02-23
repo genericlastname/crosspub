@@ -1,0 +1,4 @@
+# {topic.title}
+{topic.gemini_content}
+
+=> /~{site.username} Home
