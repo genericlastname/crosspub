@@ -90,7 +90,7 @@ slug = "example_topic"
 
 ## Basic Configuration
 
-The config file is located at `$HOME/crosspub/config.toml`
+The config file is located at `$HOME/.config/crosspub/config.toml`
 
 - `name` is the title of your site
 - `url` is the base URL of the site (not including the tilde part)
